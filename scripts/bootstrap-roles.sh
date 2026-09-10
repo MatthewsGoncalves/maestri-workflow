@@ -27,6 +27,12 @@ append_project_overlay() {
   done
 }
 
+# Codename do terminal Maestro. Fica em rules/project/ (gitignored) para que os
+# arquivos do kernel guardem o placeholder e nunca virem conflito no git pull.
+CODENAME_FILE="$ROOT/rules/project/orchestrator.codename"
+CODENAME="$(cat "$CODENAME_FILE" 2>/dev/null || echo "Orquestrator")"
+[[ -f "$CODENAME_FILE" ]] || echo "  (sem orchestrator.codename — usando \"$CODENAME\"; rode init-project.sh)"
+
 compile_prompt() {
   local rules_file="$1"
   local ops_file="$2"
@@ -53,7 +59,7 @@ compile_prompt() {
     echo ""
     echo "## Operação Maestri"
     cat "$ops_file"
-  }
+  } | sed "s|{{ORCHESTRATOR_CODENAME}}|$CODENAME|g"
 }
 
 create_role() {

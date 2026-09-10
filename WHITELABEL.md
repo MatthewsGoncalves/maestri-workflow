@@ -28,7 +28,7 @@ Copia layout do canvas + retargeta paths. Depois rode bootstrap no dir do app.
 
 ### 3. Personalizar overlay
 
-Edite `rules/project/git.md`, `communications.md`, `paths.md`.
+Edite `rules/project/git.md`, `communications.md`, `paths.md`, `preview.md`.
 
 ## O que você personaliza (só overlay)
 
@@ -37,8 +37,13 @@ Edite `rules/project/git.md`, `communications.md`, `paths.md`.
 | `rules/project/git.md` | GitHub / GitLab / … |
 | `rules/project/communications.md` | Slack / Teams / canvas |
 | `rules/project/paths.md` | Onde fica api/web/mobile |
+| `rules/project/preview.md` | Comandos dev, portas, URL do Swagger |
+| `rules/project/orchestrator.codename` | Nome do seu terminal Maestro (gerado, gitignored) |
 
 **Não edite** `rules/universal/` nem `rules/stacks/` por projeto — são o kernel compartilhado.
+Nenhum script escreve neles: `{{ORCHESTRATOR_CODENAME}}` fica no kernel e é resolvido
+por `bootstrap-roles.sh` na hora de compilar a role, a partir do overlay. Assim
+`git pull` do template nunca conflita.
 
 ## O que vem pronto (kernel)
 
@@ -50,9 +55,10 @@ Edite `rules/project/git.md`, `communications.md`, `paths.md`.
 
 ## Checklist pós-import
 
-- [ ] `./scripts/init-project.sh "Nome"`
-- [ ] Preencher `rules/project/*`
-- [ ] `./scripts/bootstrap-roles.sh`
-- [ ] Assign role **Orchestrator** no terminal Maestro (UI)
-- [ ] Conectar notas ao Orquestrator
+- [ ] `./scripts/init-project.sh "Nome" "<codename do seu Maestro>"`
+- [ ] Preencher `rules/project/*` (git, communications, paths, preview)
 - [ ] `./scripts/install-skills.sh`
+- [ ] `./scripts/bootstrap-roles.sh`
+- [ ] Assign role **Orchestrator** ao terminal Maestro (UI)
+- [ ] Conectar as notas ao Maestro
+- [ ] Smoke test — ver `docs/SCOPE.md`

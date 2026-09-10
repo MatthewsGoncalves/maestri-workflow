@@ -25,17 +25,10 @@ substitute_project_name() {
   fi
 }
 
-substitute_codename() {
-  local f="$1"
-  [[ -f "$f" ]] || return 0
-  if grep -q '{{ORCHESTRATOR_CODENAME}}' "$f" 2>/dev/null; then
-    sed_inplace '{{ORCHESTRATOR_CODENAME}}' "$CODENAME" "$f"
-    echo "  ✓ $f (ORCHESTRATOR_CODENAME → $CODENAME)"
-  fi
-}
-
 echo "→ Projeto: $NAME"
 echo "→ Codename Maestro: $CODENAME"
+# Só o overlay guarda o codename. Os arquivos do kernel mantêm o placeholder
+# {{ORCHESTRATOR_CODENAME}} — bootstrap-roles.sh resolve na hora de compilar.
 echo "$CODENAME" > "$ROOT/rules/project/orchestrator.codename"
 
 echo "→ Substituindo placeholders..."
@@ -47,17 +40,6 @@ for f in \
   "$ROOT/rules/project/preview.md"
 do
   substitute_project_name "$f"
-done
-
-for f in \
-  "$ROOT/rules/universal/agent-lifecycle.md" \
-  "$ROOT/roles/api-specialist.md" \
-  "$ROOT/roles/reviewer.md" \
-  "$ROOT/roles/ui-builder.md" \
-  "$ROOT/roles/mobile-dev.md" \
-  "$ROOT/rules/project/communications.example-canvas.md"
-do
-  substitute_codename "$f"
 done
 
 echo ""
