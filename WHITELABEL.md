@@ -11,7 +11,7 @@ Este workspace é um **template white-label**: copie/importe inteiro para qualqu
 ```bash
 git clone https://github.com/MatthewsGoncalves/maestri-workflow.git ~/Work/meu-app
 cd ~/Work/meu-app
-./scripts/init-project.sh "Meu App"
+./scripts/init-project.sh "Meu App" "Maestro"    # codename = nome do SEU terminal Maestro
 ./scripts/install-skills.sh
 ./scripts/bootstrap-roles.sh
 ```

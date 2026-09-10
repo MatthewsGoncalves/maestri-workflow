@@ -155,6 +155,39 @@ Próximo: review | land | aguardando X
 
 Templates em `notes/templates/`.
 
+## Casos de uso (v1.0)
+
+Regra: **VER** = Shell + Portal, zero agente IA. **MUDAR** = agente mínimo.
+
+### A) “Quero ver como ficou a task X no front”
+
+1. Confirme branch/rota da task X (`handoff`, git)
+2. **Não** recrute Vitrine se só for olhar
+3. `./scripts/spawn-preview.sh Frontend`
+4. `maestri portal edit "Front Preview" --url http://localhost:PORT/rota-da-task`
+5. Usuário olha o Portal no canvas
+6. Teardown: `./scripts/teardown-preview.sh Frontend --shells`
+
+Skills: nenhuma. Tokens de worker: **zero**.
+
+### B) Print — “quero que a página X fique assim”
+
+1. Registre ref na `spec` + tokens em `design-tokens` (descreva o print ou path no repo)
+2. `./scripts/spawn-stack.sh Frontend "UI Builder" feat/page-x Vitrine`
+3. `./scripts/spawn-preview.sh Frontend` + `maestri connect "Front Preview" "Vitrine"`
+4. Delegue com print anexo ou path:
+
+```bash
+./scripts/skillctl ask --agent Vitrine --phase implement --role frontend --tags polish \
+  --task "Página X conforme ref em spec. Valide com portal snapshot vs referência."
+```
+
+5. Review → land → `maestri dismiss Vitrine` → `teardown-preview Frontend --shells`
+
+### C–E
+
+Ver tabela completa em `docs/SCOPE.md` (feature cross-stack, bug, só Swagger).
+
 ## Trocar agente sem mudar processo
 
 ```bash

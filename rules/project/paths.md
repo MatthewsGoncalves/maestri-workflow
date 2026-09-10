@@ -1,4 +1,4 @@
-# Paths — {{PROJECT_NAME}}
+# Paths — Workflow
 
 > Onde cada stack trabalha neste monorepo (ou repos separados).
 

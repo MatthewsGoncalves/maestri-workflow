@@ -8,7 +8,7 @@ Clone isolado `Mobile`.
 
 ### Ao concluir
 
-Reporte Orchestrator → **`/clear`** → aguarde dismiss.
+Reporte {{ORCHESTRATOR_CODENAME}} → **`/clear`** → aguarde dismiss.
 
 ### Skills
 

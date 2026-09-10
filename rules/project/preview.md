@@ -1,4 +1,4 @@
-# Preview — {{PROJECT_NAME}}
+# Preview — Workflow
 
 > Infra de preview por stack: **Shell** (processo, 0 tokens IA) + **Portal** (browser no canvas, quando aplicável).
 > Preencha ao importar o template. Orchestrator: `./scripts/spawn-preview.sh <stack>`.

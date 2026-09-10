@@ -1,4 +1,4 @@
-# Comunicação — {{PROJECT_NAME}}
+# Comunicação — Workflow
 
 > Kernel não publica em lugar nenhum. Defina aqui como humanos são avisados.
 

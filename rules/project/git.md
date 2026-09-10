@@ -1,4 +1,4 @@
-# Git / VCS — {{PROJECT_NAME}}
+# Git / VCS — Workflow
 
 > Preencha para este repo. Kernel ai-workflow não assume host nem branch model.
 

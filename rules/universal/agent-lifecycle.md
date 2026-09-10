@@ -17,7 +17,7 @@ Terminal ocioso ligado = histórico caro no próximo turno.
 ```
 1. CHAMADO   Orchestrator: spawn-stack / spawn-reviewer + maestri ask
 2. AGE       Executa só o escopo da mensagem
-3. REPORTA   maestri ask "Orquestrator" "Status: done | needs-review | blocked ..."
+3. REPORTA   maestri ask "{{ORCHESTRATOR_CODENAME}}" "Status: done | needs-review | blocked ..."
 4. LIMPA     /clear (ou equivalente no agente) — histórico zerado
 5. DISPENSA  Orchestrator: maestri dismiss "Nome" — terminal sai do canvas
 ```

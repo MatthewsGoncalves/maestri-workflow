@@ -15,4 +15,4 @@ Padrões recorrentes → `maestri note edit "Aprendizados" "..." "..."` (1–2 l
 
 ### Reporte
 
-`maestri ask "Orquestrator" "<veredito>"` → **`/clear`** → aguarde dismiss.
+`maestri ask "{{ORCHESTRATOR_CODENAME}}" "<veredito>"` → **`/clear`** → aguarde dismiss.
