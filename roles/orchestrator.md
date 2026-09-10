@@ -42,3 +42,13 @@ defaults da role já estão no prompt do worker — cite só o que for além ·
 `attention-kind` é always_on, nunca cite.
 
 Tabela completa desta role: `rules/_generated/dispatch-orchestrator.md`.
+
+### Context contract (obrigatório por delegação)
+
+1. Após editar `handoff` ou `spec`: `./scripts/context-bump.sh --feature feat/x`
+2. Gere CTX: `./scripts/context-ask.sh --phase implement --notes spec,api-contract`
+3. Cole a linha **no início** de cada `maestri ask` a workers
+4. Debug com handoff: `--handoff yes` · default implement = `handoff:no`
+5. Land: `./scripts/land-gate.sh` (sync + stamp) — checkbox em handoff
+
+Ver `rules/project/memory.md` e `docs/MEMORY.md`.

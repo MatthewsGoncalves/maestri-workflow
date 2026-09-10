@@ -98,7 +98,16 @@ Detalhe A/B: `docs/ORCHESTRATOR-MANUAL.md`
 3. `init-project.sh` portável (Linux + macOS)
 4. Este arquivo (`docs/SCOPE.md`)
 
-## Onda 4 = v1.1 (nice-to-have)
+## Onda 4 = v1.1
+
+### Memória + segurança (v1.1.0 — shipped)
+
+- `rules/project/security.md` + `memory.md` (overlay)
+- `memory/*.md` — espelho git das 4 duráveis + redação
+- `init-notes.sh`, `sync-memory.sh`, `memory-redact.sh`
+- Guia: `docs/MEMORY.md`
+
+### Onda 4 restante (v1.1.x)
 
 - Dedupe `rules/universal` (~13% prompt)
 - `roles/` → `ops/` + `rules/roles/`
@@ -108,7 +117,7 @@ Detalhe A/B: `docs/ORCHESTRATOR-MANUAL.md`
 
 ## Riscos remanescentes
 
-1. **ALTA** — Idempotência (`spawn-stack` / `spawn-preview`) depende de grep na saída do CLI; validar contra `maestri floor list` real
+1. ~~**ALTA** — Idempotência spawn scripts~~ — fechado v1.0 (`maestri-exists.sh` + smoke test)
 2. **MÉDIA** — Drift de vendor (main sem pin)
 3. **MÉDIA** — Pouco exercitado fora de macOS
 4. **BAIXA** — Qualidade das skills = repos terceiros

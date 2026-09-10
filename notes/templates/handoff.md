@@ -1,7 +1,13 @@
 # Handoff — {{FEATURE_NAME}}
 
-> Nota rolling da feature. Sobrevive ao `/clear` dos workers — é aqui que o
-> estado mora, não nas mensagens `maestri ask`. Qualquer worker escreve.
+---
+feature_id: {{FEATURE_NAME}}
+updated_at: YYYY-MM-DDTHH:MM:SSZ
+---
+
+> Nota rolling da feature. Sobrevive ao `/clear` dos workers.
+> Frontmatter = espelho humano (opcional). Autoridade: linha **CTX** no ask + `.maestri/context.yaml`.
+> **Workers:** só leiam se `handoff:yes`. Orchestrator: `context-bump.sh` após edição material.
 
 ## Status por stack
 
@@ -24,6 +30,7 @@ Critério completo: `skills/installed/ref-definition-of-done/SKILL.md`
 - [ ] Reviewer aprovou cada stack tocada
 - [ ] Testes verdes / CI verde
 - [ ] Sem `ponytail:` novo sem dono (ver `ponytail-debt`)
+- [ ] `./scripts/land-gate.sh` OK (stamp em `.maestri/memory-sync.stamp`)
 
 ## Ordem de land
 
@@ -33,7 +40,8 @@ Critério completo: `skills/installed/ref-definition-of-done/SKILL.md`
 
 ## Pós-land
 
+- [ ] `./scripts/land-gate.sh` executado (sync-memory + stamp)
 - [ ] Smoke test integrado
 - [ ] Recruits dispensados (`maestri list` → zero ociosos)
 - [ ] Gotchas levados para `Aprendizados`
-- [ ] `spec` resetada para a próxima feature
+- [ ] `spec` resetada · `./scripts/context-bump.sh` nova feature

@@ -13,6 +13,7 @@ Um pacote instalável com:
 - **Skills** curadas de repos open source (`skills/`)
 - **Scripts** de bootstrap, andares e delegação
 - **Escopo fechado v1.0** → [`docs/SCOPE.md`](docs/SCOPE.md)
+- **Memória + segurança v1.1** → [`docs/MEMORY.md`](docs/MEMORY.md)
 - **Manual do Orquestrador** → [`docs/ORCHESTRATOR-MANUAL.md`](docs/ORCHESTRATOR-MANUAL.md)
 
 ## Instalação rápida
@@ -23,9 +24,10 @@ Requisitos: [Maestri](https://maestri.app) + terminal em **Maestro Mode** + `git
 git clone https://github.com/MatthewsGoncalves/maestri-workflow.git ~/Work/meu-app
 cd ~/Work/meu-app
 chmod +x scripts/*.sh
-./scripts/init-project.sh "Meu App" "Orquestrator"   # 2º arg = nome do terminal Maestro
+./scripts/init-project.sh "Meu App" "Orquestrator"
 ./scripts/install-skills.sh
-./scripts/bootstrap-roles.sh                         # depois do init-project
+./scripts/init-notes.sh
+./scripts/bootstrap-roles.sh
 ```
 
 No Maestri: assign role **Orchestrator** ao terminal Maestro na UI.

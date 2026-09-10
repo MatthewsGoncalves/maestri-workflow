@@ -53,6 +53,15 @@ Preset opcional (5º arg): `Claude Code`, `Cursor`, etc.
 
 ### 3. Delegar
 
+**Obrigatório:** linha CTX no início de cada ask (anti-stale):
+
+```bash
+./scripts/context-bump.sh --feature feat/minha-feature   # após editar handoff/spec
+CTX="$(./scripts/context-ask.sh --phase implement --notes spec,api-contract)"
+maestri ask "Forja" "$CTX
+Task: auth API. Skills: ponytail. Entrega: needs-review"
+```
+
 **Regra:** cite 1–3 skills por agente no `maestri ask`. Path fixo:
 
 `skills/installed/<id>/SKILL.md`
@@ -87,6 +96,10 @@ maestri floor land "Mobile" --into main
 ```
 
 Consulte `rules/project/git.md` do projeto antes de merge.
+
+```bash
+./scripts/land-gate.sh   # sync-memory --push + stamp (gate verificável)
+```
 
 ### 6. Encerrar (chamado → age → limpa)
 

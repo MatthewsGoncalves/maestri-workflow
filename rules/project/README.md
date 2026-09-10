@@ -9,16 +9,21 @@ rules/project/
 ├── README.md           ← este arquivo
 ├── git.md              ← VCS: GitHub / GitLab / Bitbucket / local
 ├── communications.md   ← como falar com humanos (Slack, Teams, issue tracker…)
-└── paths.md            ← monorepo: onde fica api / web / mobile
+├── paths.md            ← monorepo: onde fica api / web / mobile
+├── preview.md          ← Shell + Portal por stack
+├── security.md         ← secrets, redação, boundaries (v1.1)
+└── memory.md           ← matriz de leitura, sync git (v1.1)
+
+memory/                 ← espelho git das notas duráveis (ver docs/MEMORY.md)
 ```
 
 ## Ao clonar o template para um app
 
 ```bash
-maestri workspace create "Meu App" --dir ~/Work/meu-app --from "Workflow"
-cd ~/Work/meu-app
-# Edite rules/project/* para ESTE repo
-./scripts/bootstrap-roles.sh   # recompila roles (kernel + project se referenciado)
+./scripts/init-project.sh "Meu App" "Maestro"
+./scripts/install-skills.sh
+./scripts/init-notes.sh
+./scripts/bootstrap-roles.sh
 ```
 
 ## Opcional: agente de sync

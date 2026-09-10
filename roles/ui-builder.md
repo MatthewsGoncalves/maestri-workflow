@@ -4,7 +4,7 @@ Clone isolado `Frontend`.
 
 ### Antes de codar
 
-`spec` · `api-contract` · `design-tokens` · `Aprendizados`
+Leia **somente** notas na linha **CTX** do ask (`worker-context`). **`handoff:no`** = não leia handoff.
 
 ### Ao concluir
 

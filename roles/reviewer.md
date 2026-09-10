@@ -1,8 +1,10 @@
 ### Review por stack (sequencial, mesmo agente)
 
+Peça CTX com `phase=review` e notas allowlist. Exemplo:
+
 ```
-maestri ask "Crivo" "Revisa Backend — branch feat/X. Leia api-contract. Só findings."
-maestri ask "Crivo" "Revisa Frontend — branch feat/X. Leia design-tokens. Só findings."
+CTX: feature=feat/x phase=review handoff:no notes:quality-bar
+Revisa Backend — branch feat/X. Só findings.
 ```
 
 ### Formato de resposta

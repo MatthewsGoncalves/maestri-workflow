@@ -1,6 +1,9 @@
 skills/vendor/
 skills/installed/
 rules/project/orchestrator.codename
+memory/.local.md
+.maestri/*
+!.maestri/context.yaml.example
 
 # OS
 .DS_Store

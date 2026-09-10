@@ -6,12 +6,28 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CLI="${MAESTRI_CLI:-maestri}"
 
 append_project_overlay() {
-  local overlay_files=(
-    "$ROOT/rules/project/git.md"
-    "$ROOT/rules/project/communications.md"
-    "$ROOT/rules/project/paths.md"
-    "$ROOT/rules/project/preview.md"
-  )
+  local mode="${1:-worker}"
+  local overlay_files=()
+
+  if [[ "$mode" == "orchestrator" ]]; then
+    overlay_files=(
+      "$ROOT/rules/project/git.md"
+      "$ROOT/rules/project/communications.md"
+      "$ROOT/rules/project/paths.md"
+      "$ROOT/rules/project/preview.md"
+      "$ROOT/rules/project/security.md"
+      "$ROOT/rules/project/memory.md"
+    )
+  else
+    overlay_files=(
+      "$ROOT/rules/project/git.md"
+      "$ROOT/rules/project/communications.md"
+      "$ROOT/rules/project/paths.md"
+      "$ROOT/rules/project/preview.md"
+      "$ROOT/rules/project/security.worker.md"
+      "$ROOT/rules/project/worker-context.md"
+    )
+  fi
   local found=0
   for f in "${overlay_files[@]}"; do
     [[ -f "$f" ]] && found=1 && break
@@ -37,6 +53,7 @@ compile_prompt() {
   local rules_file="$1"
   local ops_file="$2"
   local skills_file="${3:-}"
+  local overlay_mode="${4:-worker}"
   {
     echo "## Princípios"
     cat "$ROOT/rules/universal/principles.md"
@@ -51,7 +68,7 @@ compile_prompt() {
     echo ""
     echo "## Regras do papel"
     cat "$rules_file"
-    append_project_overlay
+    append_project_overlay "$overlay_mode"
     if [[ -n "$skills_file" && -f "$skills_file" ]]; then
       echo ""
       cat "$skills_file"
@@ -65,8 +82,9 @@ compile_prompt() {
 create_role() {
   local name="$1" rules_file="$2" ops_file="$3"
   local skills_file="${4:-}"
+  local overlay_mode="${5:-worker}"
   local prompt
-  prompt="$(compile_prompt "$rules_file" "$ops_file" "$skills_file")"
+  prompt="$(compile_prompt "$rules_file" "$ops_file" "$skills_file" "$overlay_mode")"
 
   local left
   left="$(printf '%s' "$prompt" | grep -o '{{[A-Z_]*}}' | sort -u | tr '\n' ' ')"
@@ -89,11 +107,11 @@ echo "→ Gerando dispatch a partir de skills/catalog.yaml..."
 echo ""
 
 G="$ROOT/rules/_generated"
-create_role "Orchestrator"   "$ROOT/rules/orchestrator.md"    "$ROOT/roles/orchestrator.md"   "$G/dispatch-orchestrator.md"
-create_role "Reviewer"       "$ROOT/rules/reviewer.md"        "$ROOT/roles/reviewer.md"       "$G/dispatch-reviewer.md"
-create_role "API Specialist" "$ROOT/rules/stacks/backend.md"  "$ROOT/roles/api-specialist.md" "$G/dispatch-backend.md"
-create_role "UI Builder"     "$ROOT/rules/stacks/frontend.md" "$ROOT/roles/ui-builder.md"     "$G/dispatch-frontend.md"
-create_role "Mobile Dev"     "$ROOT/rules/stacks/mobile.md"   "$ROOT/roles/mobile-dev.md"     "$G/dispatch-mobile.md"
+create_role "Orchestrator"   "$ROOT/rules/orchestrator.md"    "$ROOT/roles/orchestrator.md"   "$G/dispatch-orchestrator.md" orchestrator
+create_role "Reviewer"       "$ROOT/rules/reviewer.md"        "$ROOT/roles/reviewer.md"       "$G/dispatch-reviewer.md" worker
+create_role "API Specialist" "$ROOT/rules/stacks/backend.md"  "$ROOT/roles/api-specialist.md" "$G/dispatch-backend.md" worker
+create_role "UI Builder"     "$ROOT/rules/stacks/frontend.md" "$ROOT/roles/ui-builder.md"     "$G/dispatch-frontend.md" worker
+create_role "Mobile Dev"     "$ROOT/rules/stacks/mobile.md"   "$ROOT/roles/mobile-dev.md"     "$G/dispatch-mobile.md" worker
 
 echo ""
 "$CLI" role list

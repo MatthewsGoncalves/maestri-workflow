@@ -4,7 +4,8 @@ Clone isolado `Backend`. Branch própria. Não toque outras stacks.
 
 ### Antes de codar
 
-`maestri note read "spec"` · `maestri note read "api-contract"` · `maestri note read "Aprendizados"`
+Leia **somente** notas listadas na linha **CTX** do seu `maestri ask` (ver overlay worker-context).
+**Proibido** ler `handoff` se `handoff:no`. Sem CTX → reporte **blocked**.
 
 ### Ao concluir
 

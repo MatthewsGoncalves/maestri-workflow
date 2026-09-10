@@ -38,7 +38,10 @@ Edite `rules/project/git.md`, `communications.md`, `paths.md`, `preview.md`.
 | `rules/project/communications.md` | Slack / Teams / canvas |
 | `rules/project/paths.md` | Onde fica api/web/mobile |
 | `rules/project/preview.md` | Comandos dev, portas, URL do Swagger |
-| `rules/project/orchestrator.codename` | Nome do seu terminal Maestro (gerado, gitignored) |
+| `rules/project/security.md` | Secrets, redação, boundaries |
+| `rules/project/memory.md` | Matriz de leitura, sync git |
+| `rules/project/orchestrator.codename` | Nome do terminal Maestro (gerado, gitignored) |
+| `memory/*.md` | Espelho git das notas duráveis |
 
 **Não edite** `rules/universal/` nem `rules/stacks/` por projeto — são o kernel compartilhado.
 Nenhum script escreve neles: `{{ORCHESTRATOR_CODENAME}}` fica no kernel e é resolvido
@@ -56,9 +59,10 @@ por `bootstrap-roles.sh` na hora de compilar a role, a partir do overlay. Assim
 ## Checklist pós-import
 
 - [ ] `./scripts/init-project.sh "Nome" "<codename do seu Maestro>"`
-- [ ] Preencher `rules/project/*` (git, communications, paths, preview)
+- [ ] Preencher `rules/project/*` (git, communications, paths, preview, security, memory)
 - [ ] `./scripts/install-skills.sh`
+- [ ] `./scripts/init-notes.sh && ./scripts/sync-skills-note.sh`
 - [ ] `./scripts/bootstrap-roles.sh`
 - [ ] Assign role **Orchestrator** ao terminal Maestro (UI)
-- [ ] Conectar as notas ao Maestro
+- [ ] `./scripts/sync-memory.sh --pull` (se importar memory/ de outro clone)
 - [ ] Smoke test — ver `docs/SCOPE.md`

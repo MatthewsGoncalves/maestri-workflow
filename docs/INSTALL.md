@@ -31,15 +31,17 @@ maestri workspace create "Meu App" --dir ~/Work/meu-app --from "Workflow"
 
 ```bash
 chmod +x scripts/*.sh
+./scripts/init-project.sh "Meu App" "Orquestrator"
 ./scripts/install-skills.sh
-./scripts/init-project.sh "Meu App"
-./scripts/bootstrap-roles.sh
+./scripts/init-notes.sh
 ./scripts/sync-skills-note.sh
+./scripts/bootstrap-roles.sh
+./scripts/sync-memory.sh --pull    # opcional: seed canvas from memory/
 ```
 
 4. No canvas Maestri:
-   - Assign role **Orchestrator** ao terminal Maestro (UI — CLI não assigna em si mesmo)
-   - Conecte notas ao Orquestrator: `spec`, `api-contract`, `handoff`, `Skills - Router`
+   - Assign role **Orchestrator** ao terminal Maestro (UI)
+   - Notas criadas por `init-notes.sh` (fichários Workflow + Memory)
 
 ## Caminho B — Só git (sem `--from`)
 
@@ -53,6 +55,9 @@ Edite (não commite secrets):
 rules/project/git.md              # GitHub, GitLab, branches, PR
 rules/project/communications.md   # Slack, Teams, ou só canvas
 rules/project/paths.md            # apps/api, apps/web, apps/mobile
+rules/project/security.md         # secrets, redação
+rules/project/memory.md           # matriz de leitura, sync git
+memory/                           # espelho das duráveis (ver docs/MEMORY.md)
 ```
 
 Exemplos prontos:

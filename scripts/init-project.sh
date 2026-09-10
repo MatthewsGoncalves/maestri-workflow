@@ -37,15 +37,28 @@ for f in \
   "$ROOT/rules/project/git.md" \
   "$ROOT/rules/project/communications.md" \
   "$ROOT/rules/project/paths.md" \
-  "$ROOT/rules/project/preview.md"
+  "$ROOT/rules/project/preview.md" \
+  "$ROOT/rules/project/security.md" \
+  "$ROOT/rules/project/memory.md" \
+  "$ROOT/rules/project/security.worker.md"
+do
+  substitute_project_name "$f"
+done
+
+for f in \
+  "$ROOT/memory/decisions.md" \
+  "$ROOT/memory/quality-bar.md" \
+  "$ROOT/memory/api-contract.md"
 do
   substitute_project_name "$f"
 done
 
 echo ""
 echo "Próximo:"
-echo "  1. Edite rules/project/* (git, communications, paths, preview)"
-echo "  2. ./scripts/bootstrap-roles.sh"
-echo "  3. maestri role assign \"$CODENAME\" \"Orchestrator\""
+echo "  1. Edite rules/project/* (git, communications, paths, preview, security, memory)"
+echo "  2. ./scripts/install-skills.sh"
+echo "  3. ./scripts/init-notes.sh && ./scripts/sync-skills-note.sh"
+echo "  4. ./scripts/bootstrap-roles.sh"
+echo "  5. maestri role assign \"$CODENAME\" \"Orchestrator\""
 echo ""
-echo "Guia: WHITELABEL.md · Escopo: docs/SCOPE.md"
+echo "Guia: WHITELABEL.md · Memória: docs/MEMORY.md · Escopo: docs/SCOPE.md"
