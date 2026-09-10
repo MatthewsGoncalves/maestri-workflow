@@ -68,6 +68,13 @@ create_role() {
   local prompt
   prompt="$(compile_prompt "$rules_file" "$ops_file" "$skills_file")"
 
+  local left
+  left="$(printf '%s' "$prompt" | grep -o '{{[A-Z_]*}}' | sort -u | tr '\n' ' ')"
+  if [[ -n "$left" ]]; then
+    echo "  ⚠ $name: placeholder não resolvido → ${left% }" >&2
+    echo "    rode ./scripts/init-project.sh \"<Projeto>\" \"<Codename>\" antes deste script" >&2
+  fi
+
   if "$CLI" role list 2>/dev/null | grep -q "\"$name\""; then
     echo "↻ Atualizando role: $name"
     "$CLI" role write "$name" "$prompt"
