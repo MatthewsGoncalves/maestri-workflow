@@ -26,7 +26,8 @@
 Ground
 ├── Terminal Maestro → role Orchestrator
 ├── Reviewer (recruit sob demanda)
-└── Notas: spec, api-contract, design-tokens, Skills - Catalog, …
+└── Notas: spec, api-contract, design-tokens, handoff, quality-bar,
+            decisions, Aprendizados, Skills - Router
 
 Andar Backend   → clone git + branch → API Specialist
 Andar Frontend  → clone git + branch → UI Builder
@@ -75,11 +76,22 @@ O **preset** (`Claude Code`, `Cursor`, …) é substituível com `maestri recrui
 
 ## Skills
 
-Orchestrator escolhe **quando** invocar. Paths estáveis:
+`skills/catalog.yaml` é a **fonte única**: 55 skills com fase, roles, triggers,
+custo e nota de destino. Tudo o mais é derivado por `scripts/skillctl`:
 
-`skills/installed/<id>/SKILL.md`
+```
+skills/catalog.yaml
+   ├── skillctl link      → skills/installed/<id>/SKILL.md   (paths estáveis)
+   ├── gen-dispatch.sh    → rules/_generated/dispatch-*.md   (prompts das roles)
+   ├── skillctl render docs → docs/SKILLS.md
+   └── sync-skills-note.sh  → nota canvas "Skills - Router"
+```
 
-Ver `docs/SKILLS.md`.
+**Fases:** `plan → design → implement → review → ship` (lineares), `comm`
+(transversal), `debug` e `harden` (interrupts), `session_start` (1×/sessão).
+
+O Orchestrator não memoriza o catálogo — consulta
+`./scripts/skillctl for --phase <fase> --role <role>`. Ver `docs/SKILLS.md`.
 
 ## Token model
 

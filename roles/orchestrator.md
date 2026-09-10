@@ -6,28 +6,39 @@ Toda fala **com o usuário** = attention-kind. Stacks/reviewer = dispatch separa
 
 Camadas: `spartan` (status) · `rundown` (fim) · `tldr` (resumo doc)
 
-### Skills (dispatch para agentes)
+### Skills — router
 
-Catálogo: `skills/catalog.yaml` · paths: `skills/installed/<id>/SKILL.md`
-
-**Regra:** cite 1–3 skills por `maestri ask`, não mande ler tudo.
-
-#### Feature nova (sequência)
-
-1. `idea-refine` ou `interview-me` (se vago)
-2. `spec-driven-development` → nota `spec`
-3. `planning-and-task-breakdown` → tasks na spec
-4. `api-and-interface-design` → nota `api-contract`
-5. Spawn stacks com skills na mensagem:
+**Você não decora o catálogo. Você consulta.** Fonte: `skills/catalog.yaml` (55 skills).
 
 ```bash
-maestri ask --batch '{
-  "Forja": "Task: auth API. Leia: skills/installed/ponytail/SKILL.md + test-driven-development. Notas: spec, api-contract. Entrega: needs-review",
-  "Vitrine": "Task: login UI. Leia: skills/installed/ponytail/SKILL.md + frontend-ui-engineering + impeccable. Notas: spec, api-contract, design-tokens."
-}'
+./scripts/skillctl for  --phase implement --role frontend --tags motion
+./scripts/skillctl ask  --agent Vitrine --phase implement --role frontend --tags motion --task "..."
+./scripts/skillctl find "a tela tá lenta"      # busca pelo que o usuário disse
+./scripts/skillctl why  ponytail-debt          # ficha de uma skill
 ```
 
-6. Review: `maestri ask "Crivo" "Review Backend branch feat/x. Skills: code-review-and-quality, ponytail-review."`
-7. User update: attention-kind (sempre) + `spartan` se status · `rundown` se fim de feature
+Sem shell no terminal? Leia a nota canvas **`Skills - Router`** (mesma fonte).
 
-Ver `rules/skills-dispatch.md` completo.
+**Roteie pela INTENÇÃO do usuário:**
+
+| Intenção | Consulte |
+|----------|----------|
+| pedido vago | `plan --tags vague` |
+| pedido claro | `plan` |
+| padrão de qualidade (1×/projeto) | `plan --tags once_per_project` |
+| contrato entre stacks | `design` |
+| não conheço o repo | `design --tags unknown_repo` |
+| UI / visual | `design --tags ui` |
+| decisão cara ou irreversível | `design --tags decision` |
+| codar | `implement --role <stack>` |
+| travou | `debug` |
+| commitado, pronto pra revisar | `review --tags gate` |
+| lento / sem métrica / bloat | `harden` |
+| land / release | `ship` |
+| falar com o usuário | `comm` |
+
+**Limites do kernel:** 1–3 skills por `ask` · nunca duas `cost: heavy` juntas ·
+defaults da role já estão no prompt do worker — cite só o que for além ·
+`attention-kind` é always_on, nunca cite.
+
+Tabela completa desta role: `rules/_generated/dispatch-orchestrator.md`.

@@ -1,206 +1,632 @@
 # Catálogo de skills — white-label ai-workflow
-# Paths relativos a skills/vendor/. Symlinks em skills/installed/<id>/SKILL.md
+# FONTE ÚNICA DE VERDADE. Consumido por scripts/skillctl (link, dispatch, nota, docs).
+# Nunca edite rules/_generated/ — edite este arquivo e rode: ./scripts/gen-dispatch.sh
+#
+# Subset YAML aceito pelo parser (skillctl não depende de pyyaml):
+#   - indentação de 2 espaços, sem tabs
+#   - listas sempre em fluxo: [a, b, c]
+#   - comentários só em linha própria
+#   - skills: sequência de registros "  - id:" com chaves a 4 espaços
+#
+# Paths de vendor são relativos a skills/vendor/
+# Agentes leem sempre por: skills/installed/<id>/SKILL.md
 
-version: 1
+version: 2
 
-# Fases do fluxo Orchestrator → stacks
+# ─── Fases ────────────────────────────────────────────────────────────
+# linear      : ciclo da feature, em ordem
+# transversal : vale em qualquer momento
+# interrupt   : dispara fora da linha do tempo
+# session     : uma vez por sessão do agente
 phases:
-  plan:     "Antes de delegar — spec e breakdown"
-  design:   "Contratos, UI, diagramas"
-  implement: "Durante codificação em stack"
-  review:   "Reviewer ou self-check antes de handoff"
-  debug:    "Blocker / incidente"
-  ship:     "PR, release, land"
-  comm:     "Falar com usuário ou resumir"
+  linear: [plan, design, implement, review, ship]
+  transversal: [comm]
+  interrupt: [debug, harden]
+  session: [session_start]
+
+# ─── Always-on ────────────────────────────────────────────────────────
+# Entra no prompt compilado da role. NÃO citar em maestri ask.
+always_on:
+  orchestrator: [attention-kind]
+
+# ─── Defaults por role ────────────────────────────────────────────────
+# O worker já tem estes no prompt. Orchestrator cita apenas o que for ALÉM.
+role_defaults:
+  orchestrator: []
+  reviewer: [code-review-and-quality, ponytail-review]
+  api-specialist: [ponytail]
+  ui-builder: [ponytail, frontend-ui-engineering]
+  mobile-dev: [ponytail]
+
+# ─── Bundles por fase ─────────────────────────────────────────────────
+# skillctl for --phase X [--tags a,b] resolve core + os grupos pedidos.
+bundles:
+  plan:
+    core: [spec-driven-development, planning-and-task-breakdown]
+    vague: [idea-refine, interview-me]
+    once_per_project: [constraint-driven-development]
+  design:
+    core: [api-and-interface-design]
+    unknown_repo: [graphify, source-driven-development]
+    ui: [design-spec, pick-ui-library, apple-design, animation-vocabulary, prototype]
+    decision: [documentation-and-adrs, doubt-driven-development]
+  implement:
+    core: [incremental-implementation]
+    backend: [test-driven-development]
+    frontend: [impeccable]
+    mobile: [test-driven-development, animate-expo]
+    security: [security-and-hardening]
+    prod: [observability-and-instrumentation]
+    motion: [animate]
+    motion_native: [animate-expo]
+    polish: [emil-design-eng]
+    toast: [ask-sonner]
+    swift: [write-swift]
+  review:
+    core: []
+    motion: [review-animations, find-animation-opportunities]
+    ui: [ref-accessibility-checklist]
+    api: [ref-security-checklist]
+    tests: [ref-testing-patterns]
+    cleanup: [code-simplification]
+    gate: [ref-definition-of-done]
+  ship:
+    core: [git-workflow-and-versioning, shipping-and-launch]
+    pipeline: [ci-cd-and-automation]
+    removing: [deprecation-and-migration]
+  comm:
+    core: [attention-kind]
+    status: [spartan]
+    feature_end: [rundown]
+    summarize: [tldr]
+  debug:
+    core: [debugging-and-error-recovery]
+    browser: [browser-testing-with-devtools]
+    docs: [source-driven-development]
+  harden:
+    core: [performance-optimization]
+    bloat: [ponytail-audit, ponytail-debt, code-simplification]
+    motion: [improve-animations]
+    prod: [ref-performance-checklist, ref-observability-checklist]
+  session_start:
+    core: [attention-kind, context-engineering, using-agent-skills]
+
+# ─── Órfãs deliberadas ────────────────────────────────────────────────
+# Presentes em vendor/ e NÃO catalogadas de propósito. doctor não alerta.
+ignore_orphans:
+  simplicity/skills/ponytail-gain/SKILL.md: "scoreboard de marketing do vendor"
+  simplicity/skills/ponytail-help/SKILL.md: "cartao de referencia do vendor"
+  diagrams/skills/graphify/SKILL.md: "duplicata de diagrams/graphify/skill.md, ja catalogado"
 
 skills:
-  # ─── PLAN (Orchestrator) ─────────────────────────────────────────
-  - id: spec-driven-development
-    vendor: engineering/skills/spec-driven-development/SKILL.md
-    phase: plan
-    roles: [orchestrator]
-    when: "Feature nova, spec vaga ou incompleta"
-    orchestrator_says: "Leia skills/installed/spec-driven-development/SKILL.md e preencha a nota spec"
 
+  # ─── SESSION START ──────────────────────────────────────────────────
+  - id: context-engineering
+    vendor: engineering/skills/context-engineering/SKILL.md
+    phase: session_start
+    roles: [orchestrator]
+    cost: light
+    triggers: [sessão nova, contexto, output piorou, degradou, rules file]
+    when: "Início de sessão ou quando a qualidade das respostas cai"
+    say: "Ajuste o contexto antes de delegar"
+
+  - id: using-agent-skills
+    vendor: engineering/skills/using-agent-skills/SKILL.md
+    phase: session_start
+    roles: [orchestrator]
+    cost: light
+    triggers: [qual skill, que skill uso, meta]
+    when: "Rede de segurança: o router e o skillctl não decidiram"
+    say: "Descubra a skill certa antes de delegar"
+
+  # ─── PLAN ───────────────────────────────────────────────────────────
   - id: idea-refine
     vendor: engineering/skills/idea-refine/SKILL.md
     phase: plan
     roles: [orchestrator]
-    when: "Pedido bruto do usuário — precisa clarificar antes de spec"
-    orchestrator_says: "Use idea-refine com o usuário; depois spec-driven-development"
-
-  - id: planning-and-task-breakdown
-    vendor: engineering/skills/planning-and-task-breakdown/SKILL.md
-    phase: plan
-    roles: [orchestrator]
-    when: "Spec pronta — quebrar em tasks antes de spawn stacks"
-    orchestrator_says: "Quebre spec em tasks; anexe lista na nota spec"
+    cost: medium
+    note: spec
+    triggers: [ideia, vago, talvez, não sei bem, brainstorm, e se]
+    when: "Pedido bruto do usuário — precisa clarificar antes da spec"
+    say: "Use idea-refine com o usuário; depois spec-driven-development"
 
   - id: interview-me
     vendor: engineering/skills/interview-me/SKILL.md
     phase: plan
     roles: [orchestrator]
-    when: "Requisitos ambíguos — entrevistar usuário"
-    orchestrator_says: "Rode interview-me antes de escrever spec"
+    cost: medium
+    note: spec
+    triggers: [requisito ambíguo, o que você quer, entrevista]
+    when: "Requisitos ambíguos — entrevistar o usuário uma pergunta por vez"
+    say: "Rode interview-me antes de escrever a spec"
 
-  # ─── DESIGN ──────────────────────────────────────────────────────
-  - id: graphify
-    vendor: diagrams/graphify/skill.md
-    phase: design
+  - id: spec-driven-development
+    vendor: engineering/skills/spec-driven-development/SKILL.md
+    phase: plan
     roles: [orchestrator]
-    when: "Mapear codebase ou fluxo complexo antes de arquitetar"
-    orchestrator_says: "Graphify no path X; resumo na nota spec"
+    cost: medium
+    note: spec
+    triggers: [spec, escopo, requisitos, prd, feature nova]
+    when: "Feature nova sem especificação escrita"
+    say: "Leia spec-driven-development e preencha a nota spec"
 
+  - id: planning-and-task-breakdown
+    vendor: engineering/skills/planning-and-task-breakdown/SKILL.md
+    phase: plan
+    roles: [orchestrator]
+    cost: light
+    note: spec
+    triggers: [tasks, quebrar, breakdown, por onde começo, ordem]
+    when: "Spec pronta — quebrar em tasks antes de subir stacks"
+    say: "Quebre a spec em tasks; anexe a lista na nota spec"
+
+  - id: constraint-driven-development
+    vendor: engineering/skills/constraint-driven-development/SKILL.md
+    phase: plan
+    roles: [orchestrator]
+    cost: medium
+    note: quality-bar
+    triggers: [quality bar, padrão de qualidade, thresholds, definition of done]
+    when: "Uma vez por projeto — fixar o padrão de qualidade como contrato"
+    say: "Entreviste o usuário e escreva a nota quality-bar"
+
+  # ─── DESIGN ─────────────────────────────────────────────────────────
   - id: api-and-interface-design
     vendor: engineering/skills/api-and-interface-design/SKILL.md
     phase: design
     roles: [orchestrator, api-specialist]
-    when: "Definir ou revisar api-contract"
-    orchestrator_says: "Leia api-and-interface-design; atualize nota api-contract"
+    cost: medium
+    note: api-contract
+    triggers: [api, endpoint, contrato, rest, graphql, interface, schema]
+    when: "Definir ou revisar o contrato entre stacks"
+    say: "Leia api-and-interface-design; atualize a nota api-contract"
 
-  - id: design-spec-vercel
-    vendor: design-spec/design-md/vercel/DESIGN.md
+  - id: graphify
+    vendor: diagrams/graphify/skill.md
     phase: design
-    type: reference
-    roles: [orchestrator, ui-builder]
-    when: "Referência visual / tokens — escolha brand em design-md/"
-    orchestrator_says: "Use design-md/<brand>/DESIGN.md como referência em design-tokens"
+    roles: [orchestrator]
+    cost: heavy
+    note: spec
+    triggers: [mapear, codebase desconhecida, arquitetura atual, grafo, onde fica]
+    when: "Repo desconhecido ou fluxo complexo antes de arquitetar"
+    say: "Graphify no path X; resumo na nota spec"
+
+  - id: source-driven-development
+    vendor: engineering/skills/source-driven-development/SKILL.md
+    phase: design
+    roles: [orchestrator, api-specialist, ui-builder, mobile-dev]
+    cost: medium
+    triggers: [doc oficial, documentação, versão, api mudou, deprecated, changelog]
+    when: "Validar a abordagem contra a doc oficial antes de implementar"
+    say: "Ancore a decisão na doc oficial; cite a fonte"
 
   - id: documentation-and-adrs
     vendor: engineering/skills/documentation-and-adrs/SKILL.md
     phase: design
     roles: [orchestrator]
-    when: "Decisão arquitetural que precisa ADR"
-    orchestrator_says: "ADR curto na nota spec ou docs/adr/"
+    cost: light
+    note: decisions
+    triggers: [adr, decisão, por que escolhemos, trade-off, registrar]
+    when: "Decisão arquitetural que precisa ficar registrada"
+    say: "ADR curto na nota decisions"
 
-  # ─── IMPLEMENT ───────────────────────────────────────────────────
+  - id: doubt-driven-development
+    vendor: engineering/skills/doubt-driven-development/SKILL.md
+    phase: design
+    roles: [orchestrator]
+    cost: heavy
+    note: decisions
+    triggers: [tem certeza, e se der errado, irreversível, caro, adversarial]
+    when: "Decisão cara ou difícil de reverter — cross-examinar antes"
+    say: "Submeta a decisão a doubt-driven-development antes de delegar"
+
+  - id: design-spec
+    vendor: design-spec/design-md/{brand}/DESIGN.md
+    phase: design
+    type: reference
+    param: brand
+    param_default: vercel
+    param_options_from: design-spec/design-md/
+    roles: [orchestrator, ui-builder]
+    cost: light
+    note: design-tokens
+    triggers: [tokens, referência visual, brand, parece com, estilo]
+    when: "Referência visual — 70+ brands disponíveis em design-md/"
+    say: "Use design-md/<brand>/DESIGN.md como base da nota design-tokens"
+
+  - id: pick-ui-library
+    vendor: ui-motion/skills/pick-ui-library/SKILL.md
+    phase: design
+    roles: [orchestrator, ui-builder]
+    cost: light
+    note: decisions
+    triggers: [qual biblioteca, lib, charts, otp, command menu, drag and drop, virtualização, tabela]
+    when: "Precisa escolher biblioteca antes de codar"
+    say: "Escolha a lib com pick-ui-library; registre em decisions"
+
+  - id: apple-design
+    vendor: ui-motion/skills/apple-design/SKILL.md
+    phase: design
+    roles: [ui-builder, mobile-dev]
+    cost: medium
+    triggers: [gesture, swipe, sheet, spring, arrastar, física, ios feel]
+    when: "UI dirigida por gesto, spring ou sheet"
+    say: "Siga apple-design para a física da interação"
+
+  - id: animation-vocabulary
+    vendor: ui-motion/skills/animation-vocabulary/SKILL.md
+    phase: design
+    roles: [orchestrator, ui-builder]
+    cost: light
+    note: spec
+    triggers: [aquele efeito, tipo bounce, sabe quando, efeito legal, nome disso]
+    when: "Usuário descreve motion vagamente — traduzir para o termo exato"
+    say: "Traduza o pedido com animation-vocabulary antes de delegar"
+
+  - id: prototype
+    vendor: ui-motion/skills/prototype/SKILL.md
+    phase: design
+    roles: [ui-builder]
+    cost: heavy
+    triggers: [não sei qual, opções, variantes, testar direções, comparar]
+    when: "Usuário indeciso entre direções visuais"
+    say: "Gere N variantes com prototype; usuário escolhe"
+
+  # ─── IMPLEMENT ──────────────────────────────────────────────────────
   - id: ponytail
     vendor: simplicity/skills/ponytail/SKILL.md
     phase: implement
     roles: [api-specialist, ui-builder, mobile-dev]
-    when: "Sempre em implementação — default lazy senior"
-    orchestrator_says: "Modo ponytail full durante implementação"
+    cost: light
+    triggers: [simples, yagni, bloat, minimal, menos código]
+    when: "Default de toda implementação — lazy senior"
+    say: "Modo ponytail full durante a implementação"
 
   - id: incremental-implementation
     vendor: engineering/skills/incremental-implementation/SKILL.md
     phase: implement
     roles: [api-specialist, ui-builder, mobile-dev]
-    when: "Feature grande — entregar em fatias verificáveis"
-    orchestrator_says: "Implemente fatia 1 de N conforme tasks na spec"
+    cost: light
+    triggers: [feature grande, vários arquivos, fatias, passo a passo]
+    when: "Task toca mais de um arquivo"
+    say: "Entregue em fatias verificáveis conforme as tasks da spec"
 
   - id: test-driven-development
     vendor: engineering/skills/test-driven-development/SKILL.md
     phase: implement
     roles: [api-specialist, mobile-dev]
-    when: "Lógica crítica / regressão — backend e mobile"
-    orchestrator_says: "TDD no escopo desta task"
-
-  - id: frontend-ui-engineering
-    vendor: engineering/skills/frontend-ui-engineering/SKILL.md
-    phase: implement
-    roles: [ui-builder]
-    when: "UI web — componentes, estado, a11y"
-    orchestrator_says: "Siga frontend-ui-engineering + design-tokens"
-
-  - id: animate
-    vendor: ui-motion/skills/animate/SKILL.md
-    phase: implement
-    roles: [ui-builder]
-    when: "Animações web"
-    orchestrator_says: "Use skill animate para motion"
-
-  - id: animate-expo
-    vendor: ui-motion/skills/animate-expo/SKILL.md
-    phase: implement
-    roles: [ui-builder, mobile-dev]
-    when: "Animações React Native / Expo"
-    orchestrator_says: "Use animate-expo"
-
-  - id: impeccable
-    vendor: polish/.cursor/skills/impeccable/SKILL.md
-    phase: implement
-    roles: [ui-builder]
-    when: "UI nova ou redesign — polish de produto"
-    orchestrator_says: "impeccable no surface X — depois commit"
+    cost: medium
+    triggers: [teste, tdd, regressão, lógica crítica, bug fix]
+    when: "Lógica crítica, correção de bug ou mudança de comportamento"
+    say: "TDD no escopo desta task"
 
   - id: security-and-hardening
     vendor: engineering/skills/security-and-hardening/SKILL.md
     phase: implement
     roles: [api-specialist]
-    when: "Auth, dados sensíveis, endpoints públicos"
-    orchestrator_says: "Aplique security-and-hardening nesta task"
+    cost: medium
+    triggers: [auth, login, token, senha, pii, input, upload, público, permissão]
+    when: "Auth, dados sensíveis ou endpoint público"
+    say: "Aplique security-and-hardening nesta task"
 
-  # ─── REVIEW ──────────────────────────────────────────────────────
+  - id: observability-and-instrumentation
+    vendor: engineering/skills/observability-and-instrumentation/SKILL.md
+    phase: implement
+    roles: [api-specialist]
+    cost: medium
+    triggers: [log, métrica, trace, alerta, monitorar, produção, debug em prod]
+    when: "Feature que vai rodar em produção"
+    say: "Instrumente antes de shippar — log, métrica, alerta"
+
+  - id: frontend-ui-engineering
+    vendor: engineering/skills/frontend-ui-engineering/SKILL.md
+    phase: implement
+    roles: [ui-builder]
+    cost: medium
+    triggers: [componente, página, layout, responsivo, a11y, wcag, estado]
+    when: "Default de UI web — componentes, estado, acessibilidade"
+    say: "Siga frontend-ui-engineering + a nota design-tokens"
+
+  - id: impeccable
+    vendor: polish/.cursor/skills/impeccable/SKILL.md
+    phase: implement
+    roles: [ui-builder]
+    cost: heavy
+    triggers: [polish, redesign, bonito, craft, hierarquia, ficou sem graça]
+    when: "UI nova ou redesign — polish de produto"
+    say: "impeccable na surface X — depois commit"
+
+  - id: emil-design-eng
+    vendor: ui-motion/skills/emil-design-eng/SKILL.md
+    phase: implement
+    roles: [ui-builder]
+    cost: medium
+    triggers: [detalhe, craft, feel, invisível, refinar componente]
+    when: "Craft de componente — os detalhes invisíveis"
+    say: "Aplique emil-design-eng no componente X"
+
+  - id: animate
+    vendor: ui-motion/skills/animate/SKILL.md
+    phase: implement
+    roles: [ui-builder]
+    cost: medium
+    triggers: [animação, transição, motion, easing, fade, slide]
+    when: "Animação web do zero"
+    say: "Use a skill animate para o motion"
+
+  - id: animate-expo
+    vendor: ui-motion/skills/animate-expo/SKILL.md
+    phase: implement
+    roles: [ui-builder, mobile-dev]
+    cost: medium
+    triggers: [reanimated, expo, react native animação, gesture handler]
+    when: "Animação em React Native / Expo"
+    say: "Use animate-expo"
+
+  - id: ask-sonner
+    vendor: ui-motion/skills/ask-sonner/SKILL.md
+    phase: implement
+    roles: [ui-builder]
+    cost: light
+    triggers: [toast, sonner, notificação, snackbar]
+    when: "Toasts com Sonner"
+    say: "Siga ask-sonner para os toasts"
+
+  - id: write-swift
+    vendor: ui-motion/skills/write-swift/SKILL.md
+    phase: implement
+    roles: [mobile-dev]
+    cost: medium
+    triggers: [swift, swiftui, ios nativo, actor, concurrency]
+    when: "Swift / iOS nativo"
+    say: "Siga write-swift — Swift 6, data-race safety"
+
+  # ─── REVIEW ─────────────────────────────────────────────────────────
   - id: code-review-and-quality
     vendor: engineering/skills/code-review-and-quality/SKILL.md
     phase: review
     roles: [reviewer]
-    when: "Todo review de stack"
-    orchestrator_says: "Review branch X — skill code-review-and-quality"
+    cost: medium
+    triggers: [review, revisar, pr, diff, antes de merge]
+    when: "Default de todo review de stack"
+    say: "Review da branch X — code-review-and-quality"
 
   - id: ponytail-review
     vendor: simplicity/skills/ponytail-review/SKILL.md
     phase: review
     roles: [reviewer]
-    when: "Checar over-engineering no diff"
-    orchestrator_says: "Camada ponytail-review após review principal"
+    cost: light
+    triggers: [over-engineering, o que dá pra deletar, complexo demais, bloat]
+    when: "Default de todo review — camada anti over-engineering"
+    say: "Camada ponytail-review após o review principal"
 
   - id: review-animations
     vendor: ui-motion/skills/review-animations/SKILL.md
     phase: review
     roles: [reviewer]
-    when: "Diff touchou motion / CSS animation"
-    orchestrator_says: "review-animations nos arquivos Y"
+    cost: medium
+    triggers: [diff com animação, motion, transição, keyframe]
+    when: "Diff tocou motion ou CSS animation"
+    say: "review-animations nos arquivos Y"
 
-  # ─── DEBUG ───────────────────────────────────────────────────────
-  - id: debugging-and-error-recovery
-    vendor: engineering/skills/debugging-and-error-recovery/SKILL.md
-    phase: debug
-    roles: [api-specialist, ui-builder, mobile-dev]
-    when: "Stack bloqueada em bug"
-    orchestrator_says: "Debug com skill debugging-and-error-recovery; reporte root cause"
+  - id: find-animation-opportunities
+    vendor: ui-motion/skills/find-animation-opportunities/SKILL.md
+    phase: review
+    roles: [reviewer, ui-builder]
+    cost: medium
+    triggers: [tá parado, sem vida, seco, deveria animar]
+    when: "UI estática onde motion agregaria — read-only, propõe valores"
+    say: "find-animation-opportunities na surface X; só proponha"
 
-  # ─── SHIP ────────────────────────────────────────────────────────
+  - id: code-simplification
+    vendor: engineering/skills/code-simplification/SKILL.md
+    phase: review
+    roles: [reviewer, api-specialist, ui-builder, mobile-dev]
+    cost: medium
+    triggers: [ilegível, confuso, refatorar, limpar, clareza]
+    when: "Funciona mas está mais difícil de ler do que precisa"
+    say: "Simplifique sem mudar comportamento"
+
+  - id: ref-definition-of-done
+    vendor: engineering/references/definition-of-done.md
+    phase: review
+    type: reference
+    roles: [orchestrator, reviewer]
+    cost: light
+    note: handoff
+    triggers: [pronto, done, pode mergear, gate, checklist]
+    when: "Gate obrigatório antes do land"
+    say: "Confira a nota handoff contra definition-of-done antes do land"
+
+  - id: ref-security-checklist
+    vendor: engineering/references/security-checklist.md
+    phase: review
+    type: reference
+    roles: [reviewer]
+    cost: light
+    triggers: [segurança, input, auth, injection, secret]
+    when: "Diff tocou input, auth ou integração externa"
+    say: "Passe o diff pelo security-checklist"
+
+  - id: ref-accessibility-checklist
+    vendor: engineering/references/accessibility-checklist.md
+    phase: review
+    type: reference
+    roles: [reviewer]
+    cost: light
+    triggers: [a11y, acessibilidade, contraste, foco, aria, teclado]
+    when: "Diff tocou UI"
+    say: "Passe o diff pelo accessibility-checklist"
+
+  - id: ref-testing-patterns
+    vendor: engineering/references/testing-patterns.md
+    phase: review
+    type: reference
+    roles: [reviewer]
+    cost: light
+    triggers: [cobertura, teste faltando, flaky, mock]
+    when: "Avaliar qualidade e cobertura dos testes do diff"
+    say: "Avalie os testes contra testing-patterns"
+
+  # ─── SHIP ───────────────────────────────────────────────────────────
   - id: git-workflow-and-versioning
     vendor: engineering/skills/git-workflow-and-versioning/SKILL.md
     phase: ship
     roles: [orchestrator]
-    when: "Antes de land / PR — alinhar com rules/project/git.md"
-    orchestrator_says: "Land segue project git.md + git-workflow skill"
+    cost: light
+    triggers: [commit, branch, pr, mr, merge, land, conflito, tag]
+    when: "Antes do land / PR — alinhar com rules/project/git.md"
+    say: "Land segue rules/project/git.md + git-workflow-and-versioning"
 
   - id: shipping-and-launch
     vendor: engineering/skills/shipping-and-launch/SKILL.md
     phase: ship
     roles: [orchestrator]
-    when: "Release / go-live checklist"
-    orchestrator_says: "Checklist shipping-and-launch + integration-checklist"
+    cost: medium
+    note: handoff
+    triggers: [release, deploy, go live, produção, lançar]
+    when: "Release / go-live"
+    say: "Checklist shipping-and-launch + nota handoff"
 
-  # ─── COMM (Orchestrator ↔ user) ──────────────────────────────────
-  - id: tldr
-    vendor: communication/skills/tldr/SKILL.md
+  - id: ci-cd-and-automation
+    vendor: engineering/skills/ci-cd-and-automation/SKILL.md
+    phase: ship
+    roles: [orchestrator, api-specialist]
+    cost: medium
+    triggers: [ci, pipeline, github actions, gitlab ci, build quebrou, quality gate]
+    when: "Configurar ou mexer em pipeline e quality gates"
+    say: "Ajuste o pipeline com ci-cd-and-automation"
+
+  - id: deprecation-and-migration
+    vendor: engineering/skills/deprecation-and-migration/SKILL.md
+    phase: ship
+    roles: [orchestrator, api-specialist]
+    cost: heavy
+    note: decisions
+    triggers: [remover, deprecar, migrar, breaking change, legado, substituir]
+    when: "Remover sistema/API ou migrar usuários e schema"
+    say: "Planeje a migração com deprecation-and-migration; registre em decisions"
+
+  # ─── COMM (Orchestrator ↔ usuário) ──────────────────────────────────
+  - id: attention-kind
+    vendor: communication/skills/attention-kind/SKILL.md
     phase: comm
-    roles: [orchestrator, reviewer]
-    when: "Resumir doc/issue longa pro usuário"
-    orchestrator_says: "Resposta ao user em formato tldr"
+    roles: [orchestrator, reviewer, api-specialist, ui-builder, mobile-dev]
+    cost: light
+    triggers: []
+    when: "Orchestrator: TODA resposta ao usuário (always_on). Outros: tom quando citado"
+    say: "(always_on — não cite) leia 1x por sessão skills/installed/attention-kind/SKILL.md"
 
   - id: spartan
     vendor: communication/skills/spartan/SKILL.md
     phase: comm
     roles: [orchestrator]
-    when: "Update curto de status pro usuário"
-    orchestrator_says: "Status spartan — 3 linhas max"
+    cost: light
+    triggers: [status, e aí, como tá, rápido]
+    when: "Update curto de status"
+    say: "Status spartan — 3 linhas no máximo"
 
   - id: rundown
     vendor: communication/skills/rundown/SKILL.md
     phase: comm
     roles: [orchestrator]
-    when: "Handoff de fim de feature — o que foi feito"
-    orchestrator_says: "Rundown final pro usuário"
+    cost: light
+    triggers: [terminou, fim, o que foi feito, resumo da feature]
+    when: "Handoff de fim de feature"
+    say: "Rundown final para o usuário"
 
-  - id: attention-kind
-    vendor: communication/skills/attention-kind/SKILL.md
+  - id: tldr
+    vendor: communication/skills/tldr/SKILL.md
     phase: comm
-    always_on: [orchestrator]
-    roles: [orchestrator, reviewer, api-specialist, ui-builder, mobile-dev]
-    when: "Orchestrator: TODA resposta ao usuário (default fixo). Outros: tom empático quando citado"
-    orchestrator_says: "(sempre ativo — não precisa citar) Leia uma vez por sessão: skills/installed/attention-kind/SKILL.md"
+    roles: [orchestrator, reviewer]
+    cost: light
+    triggers: [resume, tldr, muito longo, o que diz aí]
+    when: "Comprimir doc, issue ou thread longa"
+    say: "Resposta em formato tldr"
+
+  # ─── DEBUG (interrupt) ──────────────────────────────────────────────
+  - id: debugging-and-error-recovery
+    vendor: engineering/skills/debugging-and-error-recovery/SKILL.md
+    phase: debug
+    roles: [api-specialist, ui-builder, mobile-dev]
+    cost: medium
+    triggers: [erro, quebrou, não funciona, travou, falhou, exception, blocker]
+    when: "Stack bloqueada em bug"
+    say: "Debug com debugging-and-error-recovery; reporte root cause, não sintoma"
+
+  - id: browser-testing-with-devtools
+    vendor: engineering/skills/browser-testing-with-devtools/SKILL.md
+    phase: debug
+    roles: [ui-builder]
+    cost: medium
+    triggers: [só no browser, console, network, dom, não reproduz, safari, chrome]
+    when: "Bug que só reproduz no navegador"
+    say: "Reproduza no browser com devtools; anexe console e network"
+
+  # ─── HARDEN (interrupt) ─────────────────────────────────────────────
+  - id: performance-optimization
+    vendor: engineering/skills/performance-optimization/SKILL.md
+    phase: harden
+    roles: [api-specialist, ui-builder, mobile-dev]
+    cost: heavy
+    triggers: [lento, devagar, latência, core web vitals, bundle, query, n+1, timeout]
+    when: "Regressão de performance ou requisito explícito"
+    say: "Meça antes de otimizar; reporte before/after"
+
+  - id: ponytail-audit
+    vendor: simplicity/skills/ponytail-audit/SKILL.md
+    phase: harden
+    roles: [reviewer]
+    cost: heavy
+    triggers: [audit, o que dá pra deletar do repo, bloat, dívida, limpar repo]
+    when: "Audit de over-engineering repo-wide (não é diff)"
+    say: "ponytail-audit no repo; relatório ranqueado, não aplique nada"
+
+  - id: ponytail-debt
+    vendor: simplicity/skills/ponytail-debt/SKILL.md
+    phase: harden
+    roles: [orchestrator, reviewer]
+    cost: light
+    note: Aprendizados
+    triggers: [o que ficou pra depois, atalhos, deferrals, ponytail debt, ledger]
+    when: "Colher os comentários ponytail: antes que virem permanentes"
+    say: "Gere o ledger; leve os itens quentes para a nota Aprendizados"
+
+  - id: improve-animations
+    vendor: ui-motion/skills/improve-animations/SKILL.md
+    phase: harden
+    roles: [reviewer]
+    cost: heavy
+    triggers: [motion inconsistente, audit de animação, revisar todas as animações]
+    when: "Audit de motion do repo — gera plano para a stack executar"
+    say: "improve-animations no repo; entregue plano priorizado, não implemente"
+
+  - id: ref-performance-checklist
+    vendor: engineering/references/performance-checklist.md
+    phase: harden
+    type: reference
+    roles: [orchestrator, reviewer]
+    cost: light
+    triggers: [checklist performance, pré-release perf]
+    when: "Antes de release"
+    say: "Passe pelo performance-checklist antes do release"
+
+  - id: ref-observability-checklist
+    vendor: engineering/references/observability-checklist.md
+    phase: harden
+    type: reference
+    roles: [orchestrator, reviewer]
+    cost: light
+    triggers: [checklist observabilidade, dá pra debugar em prod]
+    when: "Antes de release"
+    say: "Passe pelo observability-checklist antes do release"
+
+  - id: ref-orchestration-patterns
+    vendor: engineering/references/orchestration-patterns.md
+    phase: harden
+    type: reference
+    roles: [orchestrator]
+    cost: light
+    triggers: [como coordenar, paralelizar agentes, padrão de orquestração]
+    when: "Revisar o próprio padrão de delegação do Orchestrator"
+    say: "Referência de padrões de orquestração"

@@ -70,11 +70,16 @@ create_role() {
   fi
 }
 
-create_role "Orchestrator"   "$ROOT/rules/orchestrator.md"   "$ROOT/roles/orchestrator.md"   "$ROOT/rules/skills-dispatch.md"
-create_role "Reviewer"       "$ROOT/rules/reviewer.md"       "$ROOT/roles/reviewer.md"       "$ROOT/rules/skills-dispatch-reviewer.md"
-create_role "API Specialist" "$ROOT/rules/stacks/backend.md" "$ROOT/roles/api-specialist.md" "$ROOT/rules/skills-dispatch-stack-backend.md"
-create_role "UI Builder"     "$ROOT/rules/stacks/frontend.md" "$ROOT/roles/ui-builder.md"    "$ROOT/rules/skills-dispatch-stack-frontend.md"
-create_role "Mobile Dev"     "$ROOT/rules/stacks/mobile.md"  "$ROOT/roles/mobile-dev.md"    "$ROOT/rules/skills-dispatch-stack-mobile.md"
+echo "→ Gerando dispatch a partir de skills/catalog.yaml..."
+"$ROOT/scripts/gen-dispatch.sh"
+echo ""
+
+G="$ROOT/rules/_generated"
+create_role "Orchestrator"   "$ROOT/rules/orchestrator.md"    "$ROOT/roles/orchestrator.md"   "$G/dispatch-orchestrator.md"
+create_role "Reviewer"       "$ROOT/rules/reviewer.md"        "$ROOT/roles/reviewer.md"       "$G/dispatch-reviewer.md"
+create_role "API Specialist" "$ROOT/rules/stacks/backend.md"  "$ROOT/roles/api-specialist.md" "$G/dispatch-backend.md"
+create_role "UI Builder"     "$ROOT/rules/stacks/frontend.md" "$ROOT/roles/ui-builder.md"     "$G/dispatch-frontend.md"
+create_role "Mobile Dev"     "$ROOT/rules/stacks/mobile.md"   "$ROOT/roles/mobile-dev.md"     "$G/dispatch-mobile.md"
 
 echo ""
 "$CLI" role list

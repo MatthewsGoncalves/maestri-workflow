@@ -39,7 +39,7 @@ chmod +x scripts/*.sh
 
 4. No canvas Maestri:
    - Assign role **Orchestrator** ao terminal Maestro (UI — CLI não assigna em si mesmo)
-   - Conecte notas ao Orquestrator: `spec`, `api-contract`, `Skills - Catalog`
+   - Conecte notas ao Orquestrator: `spec`, `api-contract`, `handoff`, `Skills - Router`
 
 ## Caminho B — Só git (sem `--from`)
 
@@ -71,7 +71,8 @@ Depois:
 ```bash
 maestri role list          # 5 roles globais
 ls skills/installed/       # symlinks das skills
-maestri note read "Skills - Catalog"
+maestri note read "Skills - Router"
+./scripts/skillctl doctor  # 55 entradas, 0 erros
 ```
 
 ## Atualizar template

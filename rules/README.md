@@ -7,15 +7,16 @@ Fonte oficial versionada em git. Se o canvas for resetado ou um recruit recriado
 ```
 rules/
 ├── universal/          # vale para TODOS os papéis
-│   ├── maestri.md
+│   ├── principles.md
+│   ├── agent-lifecycle.md
 │   ├── token-economy.md
+│   ├── maestri.md
 │   └── communication.md
 ├── orchestrator.md
 ├── reviewer.md
-└── stacks/
-    ├── backend.md
-    ├── frontend.md
-    └── mobile.md
+├── stacks/{backend,frontend,mobile}.md
+├── _generated/         # dispatch de skills — NÃO EDITE (gen-dispatch.sh)
+└── project/            # overlay por projeto
 ```
 
 ## Formato de cada arquivo
@@ -62,5 +63,7 @@ Convenções de **código** do app: `CLAUDE.md`, `.cursor/rules/` no repo do pro
 | `spec` | Orchestrator | Escopo da feature |
 | `api-contract` | Orchestrator | Contrato entre stacks |
 | `design-tokens` | Orchestrator | UI compartilhada |
-| `integration-checklist` | Orchestrator | Pré/pós land |
+| `handoff` | Qualquer worker | Estado rolling da feature + gate pré-land |
+| `quality-bar` | Orchestrator | Padrão de qualidade do projeto (durável) |
+| `decisions` | Orchestrator | Log append-only de ADRs |
 | `Aprendizados` | Reviewer + stacks | Gotchas curados (não log) |

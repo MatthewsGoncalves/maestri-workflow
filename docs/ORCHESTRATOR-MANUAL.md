@@ -20,7 +20,7 @@ Você **não implementa código**. Você:
 ```bash
 maestri list                    # time e notas
 maestri note read "spec"
-maestri note read "Skills - Catalog"
+maestri note read "handoff"
 ```
 
 **Comunicação com o usuário:** `attention-kind` está **sempre ativo**. Leia uma vez por sessão:
@@ -99,7 +99,7 @@ maestri dismiss "Vitrine"
 maestri dismiss "Crivo"
 ```
 
-- Marque `integration-checklist`
+- Feche o gate na nota `handoff`
 - `maestri list` — confirme **zero** recruits ociosos
 - Status final ao user: `rundown` (+ attention-kind)
 
@@ -147,9 +147,11 @@ Próximo: review | land | aguardando X
 | `spec` | Escopo e critérios |
 | `api-contract` | Contrato entre stacks |
 | `design-tokens` | UI compartilhada |
-| `integration-checklist` | Pré/pós land |
+| `handoff` | Estado rolling da feature + gate pré-land |
+| `quality-bar` | Padrão de qualidade do projeto |
+| `decisions` | Log de ADRs |
 | `Aprendizados` | Gotchas curados |
-| `Skills - Catalog` | Referência rápida |
+| `Skills - Router` | Router de skills (gerado) |
 
 Templates em `notes/templates/`.
 
@@ -171,6 +173,6 @@ Roles e regras permanecem.
 
 ## Referências
 
-- Dispatch de skills: `rules/skills-dispatch.md`
+- Router de skills: `./scripts/skillctl` · dispatch gerado: `rules/_generated/`
 - Catálogo completo: `skills/catalog.yaml`
 - Arquitetura: `docs/ARCHITECTURE.md`

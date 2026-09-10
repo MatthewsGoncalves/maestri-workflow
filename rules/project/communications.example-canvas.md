@@ -19,4 +19,4 @@
 ## Regras
 
 1. Nenhum agente posta em Slack/Teams/Discord salvo `communications.md` dizer o contrário.
-2. Texto pronto para copy-paste → nota `integration-checklist` ou resposta ao Orquestrator.
+2. Texto pronto para copy-paste → nota `handoff` ou resposta ao Orquestrator.

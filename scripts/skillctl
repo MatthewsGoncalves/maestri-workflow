@@ -1,0 +1,452 @@
+#!/usr/bin/env python3
+"""skillctl — consulta determinística do catálogo de skills.
+
+Única porta de entrada para skills/catalog.yaml. Sem dependências externas:
+lê o subset YAML documentado no topo do catálogo.
+
+  skillctl for --phase implement --role ui-builder --tags motion
+  skillctl ask --agent Vitrine --phase implement --role frontend --tags motion
+  skillctl find "a tela ta lenta"
+  skillctl why ponytail-debt
+  skillctl link
+  skillctl render dispatch --role reviewer | note | docs
+  skillctl doctor
+"""
+import argparse
+import re
+import sys
+import unicodedata
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+CATALOG = ROOT / "skills" / "catalog.yaml"
+VENDOR = ROOT / "skills" / "vendor"
+INSTALLED = ROOT / "skills" / "installed"
+
+ROLE_ALIAS = {
+    "backend": "api-specialist",
+    "frontend": "ui-builder",
+    "mobile": "mobile-dev",
+    "orch": "orchestrator",
+    "review": "reviewer",
+}
+
+
+# ── parser do subset YAML ────────────────────────────────────────────
+def _scalar(s):
+    if s == "" or s == "null":
+        return None
+    if s.startswith("[") and s.endswith("]"):
+        inner = s[1:-1].strip()
+        return [x.strip() for x in inner.split(",")] if inner else []
+    if len(s) > 1 and s[0] == s[-1] and s[0] in "\"'":
+        return s[1:-1]
+    return int(s) if s.isdigit() else s
+
+
+def _lines(text):
+    out = []
+    for raw in text.splitlines():
+        stripped = raw.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        out.append((len(raw) - len(raw.lstrip()), stripped))
+    return out
+
+
+def _block(lines, i, indent):
+    out = {}
+    while i < len(lines):
+        ind, txt = lines[i]
+        if ind < indent or txt.startswith("- "):
+            break
+        key, _, rest = txt.partition(":")
+        key, rest = key.strip(), rest.strip()
+        if rest:
+            out[key] = _scalar(rest)
+            i += 1
+            continue
+        j = i + 1
+        if j < len(lines) and lines[j][0] > ind:
+            if lines[j][1].startswith("- "):
+                out[key], i = _seq(lines, j, lines[j][0])
+            else:
+                out[key], i = _block(lines, j, lines[j][0])
+        else:
+            out[key] = None
+            i = j
+    return out, i
+
+
+def _seq(lines, i, indent):
+    out = []
+    while i < len(lines):
+        ind, txt = lines[i]
+        if ind < indent or not txt.startswith("- "):
+            break
+        k, _, v = txt[2:].partition(":")
+        rec = {k.strip(): _scalar(v.strip())}
+        i += 1
+        while i < len(lines) and lines[i][0] > indent and not lines[i][1].startswith("- "):
+            k2, _, v2 = lines[i][1].partition(":")
+            rec[k2.strip()] = _scalar(v2.strip())
+            i += 1
+        out.append(rec)
+    return out, i
+
+
+def load():
+    data, _ = _block(_lines(CATALOG.read_text(encoding="utf-8")), 0, 0)
+    data["_by_id"] = {s["id"]: s for s in data.get("skills", [])}
+    return data
+
+
+# ── helpers ──────────────────────────────────────────────────────────
+def vendor_rel(skill):
+    rel = skill.get("vendor", "")
+    if skill.get("param"):
+        rel = rel.replace("{" + skill["param"] + "}", skill.get("param_default", ""))
+    return rel
+
+
+def installed_path(sid):
+    return f"skills/installed/{sid}/SKILL.md"
+
+
+def norm_role(r):
+    return ROLE_ALIAS.get(r, r) if r else None
+
+
+def resolve(cat, phase, tags):
+    """Devolve [(id, grupo)] do bundle da fase: core + grupos pedidos."""
+    groups = cat.get("bundles", {}).get(phase)
+    if groups is None:
+        sys.exit(f"fase desconhecida: {phase}\nfases: {', '.join(sorted(cat['bundles']))}")
+    unknown = [t for t in tags if t not in groups]
+    if unknown:
+        print(f"# aviso: tag(s) inexistente(s) em '{phase}': {', '.join(unknown)}"
+              f" — disponiveis: {', '.join(g for g in groups if g != 'core')}", file=sys.stderr)
+    picked, seen = [], set()
+    for name in ["core"] + list(tags):
+        for sid in groups.get(name) or []:
+            if sid not in seen:
+                seen.add(sid)
+                picked.append((sid, name))
+    return picked, groups
+
+
+# ── comandos ─────────────────────────────────────────────────────────
+def cmd_for(cat, a):
+    role = norm_role(a.role)
+    tags = [t for t in (a.tags or "").split(",") if t]
+    picked, groups = resolve(cat, a.phase, tags)
+    defaults = cat.get("role_defaults", {}).get(role) or [] if role else []
+    always = cat.get("always_on", {}).get(role) or [] if role else []
+
+    rows = []
+    for sid in defaults:
+        rows.append((sid, "default", cat["_by_id"].get(sid, {})))
+    for sid, grp in picked:
+        if sid in defaults:
+            continue
+        s = cat["_by_id"].get(sid)
+        if not s:
+            continue
+        if role and role not in (s.get("roles") or []):
+            continue
+        rows.append((sid, grp, s))
+
+    if not rows:
+        print(f"(nada para --phase {a.phase}" + (f" --role {role}" if role else "") + ")")
+        unused = [g for g in groups if g != "core" and g not in tags]
+        if unused:
+            print("tags disponíveis:", ", ".join(unused))
+        return
+    w = max(len(r[0]) for r in rows)
+    for sid, grp, s in rows:
+        print(f"{sid:<{w}}  [{grp}/{s.get('cost', '?')}]  {installed_path(sid)}")
+    for sid in always:
+        print(f"{sid:<{w}}  [always_on]  já no prompt — não cite no ask")
+    unused = [g for g in groups if g != "core" and g not in tags]
+    if unused:
+        print("\ntags não usadas:", ", ".join(unused))
+
+
+def cmd_ask(cat, a):
+    role = norm_role(a.role)
+    tags = [t for t in (a.tags or "").split(",") if t]
+    picked, _ = resolve(cat, a.phase, tags)
+    defaults = set(cat.get("role_defaults", {}).get(role) or [])
+
+    cite, notes, heavy = [], {"spec"}, []
+    for sid, _grp in picked:
+        s = cat["_by_id"].get(sid)
+        if not s or sid in defaults:
+            continue
+        if role and role not in (s.get("roles") or []):
+            continue
+        cite.append(sid)
+        if s.get("note"):
+            notes.add(s["note"])
+        if s.get("cost") == "heavy":
+            heavy.append(sid)
+
+    if len(cite) > 3:
+        print(f"# aviso: {len(cite)} skills citadas — o limite do kernel é 3.", file=sys.stderr)
+    if len(heavy) > 1:
+        print(f"# aviso: {len(heavy)} skills cost:heavy juntas ({', '.join(heavy)}).", file=sys.stderr)
+
+    read = ", ".join(installed_path(s) for s in cite) if cite else "(defaults da role bastam)"
+    print(f'''maestri ask "{a.agent}" "Task: {a.task or '<preencher>'}
+Leia antes: {read}
+Notas: {', '.join(sorted(notes))}
+Entrega: commit + Status needs-review → atualize a nota handoff"''')
+
+
+def _fold(s):
+    """Minuscula sem acento — 'animação' e 'animacao' viram a mesma coisa."""
+    return "".join(c for c in unicodedata.normalize("NFKD", s.lower())
+                   if not unicodedata.combining(c))
+
+
+def _stems(text):
+    """Tokens >=4 letras, sem acento, cortados em 4 chars — casa lento/lenta."""
+    return {w[:4] for w in re.findall(r"\w+", _fold(text), re.UNICODE) if len(w) >= 4}
+
+
+def cmd_find(cat, a):
+    q = _fold(a.text)
+    qs = _stems(a.text)
+    hits = []
+    for s in cat["skills"]:
+        for t in s.get("triggers") or []:
+            tl = _fold(t)
+            if tl in q or (_stems(tl) and _stems(tl) <= qs):
+                hits.append((s, t))
+                break
+    if not hits:
+        print("nenhum trigger bateu — rode: skillctl for --phase <fase>")
+        return
+    w = max(len(s["id"]) for s, _ in hits)
+    for s, t in hits:
+        print(f"{s['id']:<{w}}  {s['phase']:<14} [{s.get('cost','?')}]  trigger: {t}")
+
+
+def cmd_why(cat, a):
+    s = cat["_by_id"].get(a.id)
+    if not s:
+        sys.exit(f"id desconhecido: {a.id}")
+    print(f"{s['id']}  ({s['phase']}, {s.get('cost','?')}{', reference' if s.get('type') else ''})")
+    print(f"  quando : {s.get('when','')}")
+    print(f"  roles  : {', '.join(s.get('roles') or [])}")
+    if s.get("note"):
+        print(f"  nota   : {s['note']}")
+    print(f"  path   : {installed_path(s['id'])}")
+    print(f"  diga   : {s.get('say','')}")
+
+
+def cmd_link(cat, _a):
+    INSTALLED.mkdir(parents=True, exist_ok=True)
+    linked, missing = 0, []
+    for s in cat["skills"]:
+        src = (VENDOR / vendor_rel(s)).resolve()
+        if not src.exists():
+            missing.append(f"{s['id']} → {vendor_rel(s)}")
+            continue
+        d = INSTALLED / s["id"]
+        d.mkdir(parents=True, exist_ok=True)
+        dest = d / "SKILL.md"
+        if dest.exists() or dest.is_symlink():
+            dest.unlink()
+        dest.symlink_to(src)
+        linked += 1
+    live = {s["id"] for s in cat["skills"]}
+    stale = [d for d in INSTALLED.iterdir() if d.is_dir() and d.name not in live]
+    for d in stale:
+        for f in d.iterdir():
+            f.unlink()
+        d.rmdir()
+    print(f"✓ {linked} skills → skills/installed/" +
+          (f" · {len(stale)} obsoleta(s) removida(s): {', '.join(sorted(d.name for d in stale))}" if stale else ""))
+    if missing:
+        print(f"✗ {len(missing)} paths faltando:", file=sys.stderr)
+        for m in missing:
+            print(f"   {m}", file=sys.stderr)
+        return 1
+    return 0
+
+
+def _table(cat, ids, role):
+    defaults = set(cat.get("role_defaults", {}).get(role) or [])
+    out = ["| Quando | Skill | Path |", "|---|---|---|"]
+    for sid in ids:
+        s = cat["_by_id"].get(sid)
+        if not s:
+            continue
+        mark = " **(default)**" if sid in defaults else ""
+        out.append(f"| {s.get('when','')} | `{sid}`{mark} | `{installed_path(sid)}` |")
+    return out
+
+
+def cmd_render(cat, a):
+    if a.what == "dispatch":
+        role = norm_role(a.role)
+        if not role:
+            sys.exit("render dispatch exige --role")
+        ids = [s["id"] for s in cat["skills"] if role in (s.get("roles") or [])]
+        always = cat.get("always_on", {}).get(role) or []
+        defaults = cat.get("role_defaults", {}).get(role) or []
+        print(f"# Skills — {role}\n")
+        print("<!-- GERADO por scripts/gen-dispatch.sh — não edite. Fonte: skills/catalog.yaml -->\n")
+        print(f"Paths: `skills/installed/<id>/SKILL.md`\n")
+        if always:
+            print(f"**Always-on:** {', '.join('`%s`' % i for i in always)} — já vale, não precisa ser citada.\n")
+        if defaults:
+            print(f"**Defaults desta role:** {', '.join('`%s`' % i for i in defaults)} — leia sem esperar ordem.\n")
+        for phase in ["session_start", "plan", "design", "implement", "review", "ship", "comm", "debug", "harden"]:
+            sub = [i for i in ids if cat["_by_id"][i]["phase"] == phase]
+            if not sub:
+                continue
+            print(f"\n## {phase}\n")
+            print("\n".join(_table(cat, sub, role)))
+        print("\nLeia **somente** as skills citadas pelo Orchestrator + os defaults acima.")
+        print("Não sabe qual? `./scripts/skillctl for --phase <fase> --role %s`" % role)
+    elif a.what == "note":
+        print("# Skills — Router\n")
+        print("<!-- gerado por scripts/skillctl render note -->\n")
+        print("Não decore. Consulte: `./scripts/skillctl for --phase <fase> --role <role>`\n")
+        print("Roteie pela **intenção** do usuário:\n")
+        print("| Intenção | Fase/tag |\n|---|---|")
+        for label, tgt in [
+            ("pedido vago", "plan --tags vague"), ("pedido claro", "plan"),
+            ("padrão de qualidade (1x/projeto)", "plan --tags once_per_project"),
+            ("contrato entre stacks", "design"), ("não conheço o repo", "design --tags unknown_repo"),
+            ("UI / visual", "design --tags ui"), ("decisão cara", "design --tags decision"),
+            ("codar", "implement --role <stack>"), ("travou", "debug"),
+            ("commitado", "review --tags gate"), ("lento / sem métrica", "harden"),
+            ("land / release", "ship"), ("falar com o usuário", "comm"),
+        ]:
+            print(f"| {label} | `{tgt}` |")
+        print("\nLimite: **1–3 skills por ask**. Nunca duas `cost: heavy` juntas.")
+        print("Defaults da role já estão no prompt do worker — cite só o que for além.\n")
+        print("Fonte: `skills/catalog.yaml` · dispatch: `rules/_generated/`")
+    elif a.what == "docs":
+        print("# Skills — catálogo\n")
+        print("<!-- GERADO por scripts/skillctl render docs — não edite. -->\n")
+        print("Instalação: `./scripts/install-skills.sh` · relink: `./scripts/skillctl link`")
+        print("Consulta: `./scripts/skillctl for --phase <fase> [--role <role>] [--tags a,b]`\n")
+        for phase in ["session_start", "plan", "design", "implement", "review", "ship", "comm", "debug", "harden"]:
+            sub = [s for s in cat["skills"] if s["phase"] == phase]
+            if not sub:
+                continue
+            print(f"\n## {phase}\n")
+            print("| Skill | Roles | Custo | Quando |\n|---|---|---|---|")
+            for s in sub:
+                print(f"| `{s['id']}` | {', '.join(s.get('roles') or [])} | {s.get('cost','?')} | {s.get('when','')} |")
+
+
+def cmd_doctor(cat, _a):
+    errs, warns = [], []
+    ids = [s["id"] for s in cat["skills"]]
+    dupes = {i for i in ids if ids.count(i) > 1}
+    if dupes:
+        errs.append(f"ids duplicados: {', '.join(sorted(dupes))}")
+
+    has_vendor = VENDOR.exists() and any(VENDOR.iterdir())
+    if not has_vendor:
+        warns.append("skills/vendor/ vazio — paths não verificados (rode install-skills.sh)")
+    for s in cat["skills"]:
+        if has_vendor and not (VENDOR / vendor_rel(s)).exists():
+            errs.append(f"vendor faltando: {s['id']} → {vendor_rel(s)}")
+        for field in ("phase", "roles", "when", "say", "cost"):
+            if not s.get(field):
+                errs.append(f"{s['id']}: campo '{field}' vazio")
+
+    known_phases = set()
+    for v in (cat.get("phases") or {}).values():
+        known_phases.update(v or [])
+    for s in cat["skills"]:
+        if s.get("phase") not in known_phases:
+            errs.append(f"{s['id']}: fase '{s.get('phase')}' fora de phases:")
+
+    known_ids = set(ids)
+    for phase, groups in (cat.get("bundles") or {}).items():
+        if phase not in known_phases:
+            errs.append(f"bundle '{phase}' não é uma fase declarada")
+        for grp, members in (groups or {}).items():
+            for sid in members or []:
+                if sid not in known_ids:
+                    errs.append(f"bundle {phase}/{grp}: id inexistente '{sid}'")
+    for role, members in (cat.get("role_defaults") or {}).items():
+        for sid in members or []:
+            if sid not in known_ids:
+                errs.append(f"role_defaults[{role}]: id inexistente '{sid}'")
+            elif role not in (cat["_by_id"][sid].get("roles") or []):
+                errs.append(f"role_defaults[{role}]: '{sid}' não lista essa role")
+    for role, members in (cat.get("always_on") or {}).items():
+        for sid in members or []:
+            if sid not in known_ids:
+                errs.append(f"always_on[{role}]: id inexistente '{sid}'")
+
+    catalogued = {vendor_rel(s) for s in cat["skills"]}
+    ignored = set(cat.get("ignore_orphans") or {})
+    if has_vendor:
+        for p in sorted(VENDOR.glob("*/skills/*/SKILL.md")):
+            rel = str(p.relative_to(VENDOR))
+            if rel not in catalogued and rel not in ignored:
+                warns.append(f"órfã em vendor/: {rel}")
+
+    print(f"catálogo v{cat.get('version')} · {len(ids)} entradas · {len(known_phases)} fases")
+    for w in warns:
+        print(f"⚠ {w}")
+    if errs:
+        for e in errs:
+            print(f"✗ {e}", file=sys.stderr)
+        print(f"\n{len(errs)} erro(s)", file=sys.stderr)
+        return 1
+    print(f"✓ paths OK · bundles OK · defaults OK{' · %d órfã(s)' % len(warns) if warns else ' · 0 órfãs'}")
+    return 0
+
+
+def main():
+    p = argparse.ArgumentParser(prog="skillctl", description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    f = sub.add_parser("for", help="skills de uma fase/role")
+    f.add_argument("--phase", required=True)
+    f.add_argument("--role")
+    f.add_argument("--tags")
+    f.set_defaults(fn=cmd_for)
+
+    k = sub.add_parser("ask", help="monta o maestri ask pronto")
+    k.add_argument("--agent", required=True)
+    k.add_argument("--phase", required=True)
+    k.add_argument("--role")
+    k.add_argument("--tags")
+    k.add_argument("--task")
+    k.set_defaults(fn=cmd_ask)
+
+    fd = sub.add_parser("find", help="busca por trigger")
+    fd.add_argument("text")
+    fd.set_defaults(fn=cmd_find)
+
+    w = sub.add_parser("why", help="ficha de uma skill")
+    w.add_argument("id")
+    w.set_defaults(fn=cmd_why)
+
+    sub.add_parser("link", help="symlinks skills/installed/").set_defaults(fn=cmd_link)
+
+    r = sub.add_parser("render", help="gera dispatch | note | docs")
+    r.add_argument("what", choices=["dispatch", "note", "docs"])
+    r.add_argument("--role")
+    r.set_defaults(fn=cmd_render)
+
+    sub.add_parser("doctor", help="valida o catálogo").set_defaults(fn=cmd_doctor)
+
+    a = p.parse_args()
+    sys.exit(a.fn(load(), a) or 0)
+
+
+if __name__ == "__main__":
+    main()

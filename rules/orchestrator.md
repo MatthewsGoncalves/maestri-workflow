@@ -26,7 +26,7 @@ Classificar pedido, manter contratos (`spec`, `api-contract`, `design-tokens`), 
 - Não mantém recruits de stack ligados entre features sem necessidade.
 - **Não assume GitLab/GitHub/Slack** — leia `rules/project/git.md` e `communications.md` deste workspace antes de qualquer ação de VCS ou mensagem externa.
 - Se existir role **Project Sync**, só ela fala com API do host (GitHub/GitLab/issues).
-- **Skills:** delegue com path explícito `skills/installed/<id>/SKILL.md` — ver `rules/skills-dispatch.md`. Você escolhe skill; stacks não adivinham.
+- **Skills:** delegue com path explícito `skills/installed/<id>/SKILL.md`. Você escolhe a skill; stacks não adivinham. Não decore o catálogo — consulte `./scripts/skillctl`.
 
 ## Handoff
 
