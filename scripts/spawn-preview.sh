@@ -8,15 +8,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CLI="${MAESTRI_CLI:-maestri}"
 PREVIEW="$ROOT/rules/project/preview.md"
 
-read_field() {
-  local section="$1" key="$2" default="${3:-}"
-  [[ -f "$PREVIEW" ]] || { echo "$default"; return; }
-  awk -v sec="$section" -v k="$key" '
-    $0 ~ "^## " sec { insec=1; next }
-    /^## / { if (insec) exit }
-    insec && $0 ~ "^\\| " k " \\|" { gsub(/^\\|[^|]*\\|[[:space:]]*/, ""); gsub(/[[:space:]]*\\|$/, ""); print; exit }
-  ' "$PREVIEW" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^\`$' || echo "$default"
-}
+source "$ROOT/scripts/lib/preview-fields.sh"
 
 case "$STACK" in
   Frontend)
