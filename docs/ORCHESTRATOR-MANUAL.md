@@ -2,6 +2,8 @@
 
 Para quem opera o terminal **Maestro** — coordena features, delega stacks, controla tokens.
 
+**North star:** **rápido** (paralelo, sob demanda) · **otimizado** (tokens, skills focadas) · **certeiro** (spec, contrato, ask explícito). Ver `rules/universal/principles.md`.
+
 ## Seu papel
 
 Você **não implementa código**. Você:

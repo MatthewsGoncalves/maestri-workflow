@@ -2,6 +2,8 @@
 
 Template **white-label** para orquestrar projetos no [Maestri](https://maestri.app) — monolitos com backend, frontend e mobile, **qualquer agente** (Claude, Cursor, Codex, Antigravity…).
 
+**North star:** rápido · otimizado · certeiro — ver [`rules/universal/principles.md`](rules/universal/principles.md).
+
 ## O que é
 
 Um pacote instalável com:

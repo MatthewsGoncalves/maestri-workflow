@@ -21,6 +21,9 @@ compile_prompt() {
   local ops_file="$2"
   local skills_file="${3:-}"
   {
+    echo "## Princípios"
+    cat "$ROOT/rules/universal/principles.md"
+    echo ""
     echo "## Regras universais"
     cat "$ROOT/rules/universal/maestri.md"
     echo ""
