@@ -10,6 +10,7 @@ append_project_overlay() {
     "$ROOT/rules/project/git.md"
     "$ROOT/rules/project/communications.md"
     "$ROOT/rules/project/paths.md"
+    "$ROOT/rules/project/preview.md"
   )
   local found=0
   for f in "${overlay_files[@]}"; do

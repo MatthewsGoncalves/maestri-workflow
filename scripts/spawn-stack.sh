@@ -38,4 +38,5 @@ else
 fi
 
 echo ""
-"$CLI" floor list
+echo "Stack pronta. Preview (Shell + Portal, 0 tokens IA):"
+echo "  ./scripts/spawn-preview.sh $STACK"
