@@ -5,10 +5,10 @@ set -euo pipefail
 
 STACK="${1:?Frontend | Backend | Mobile}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CLI="${MAESTRI_CLI:-maestri}"
 PREVIEW="$ROOT/rules/project/preview.md"
 
 source "$ROOT/scripts/lib/preview-fields.sh"
+source "$ROOT/scripts/lib/maestri-exists.sh"
 
 case "$STACK" in
   Frontend)
@@ -41,36 +41,28 @@ case "$STACK" in
     ;;
 esac
 
-recruit_exists() {
-  "$CLI" list 2>/dev/null | grep -qE "\"${1}\""
-}
-
 spawn_shell() {
   local name="$1" floor="$2" cmd="$3"
-  if recruit_exists "$name"; then
+  if maestri_exists "$name" agents; then
     echo "↷ Shell \"$name\" já existe"
     return
   fi
   echo "→ Shell \"$name\" on $floor: $cmd"
-  "$CLI" recruit "$name" --preset "Shell" --floor "$floor" --command "$cmd"
-}
-
-portal_exists() {
-  "$CLI" list 2>/dev/null | grep -i "$1" >/dev/null 2>&1 || return 1
+  maestri_cli recruit "$name" --preset "Shell" --floor "$floor" --command "$cmd"
 }
 
 spawn_portal() {
   local url="$1" name="$2" size="${3:-}"
-  if portal_exists "$name"; then
+  if maestri_portal_exists "$name"; then
     echo "↷ Portal \"$name\" já existe — edit URL"
-    "$CLI" portal edit "$name" --url "$url" 2>/dev/null || echo "  (conecte portal manualmente se orphan)"
+    maestri_cli portal edit "$name" --url "$url" 2>/dev/null || echo "  (conecte portal manualmente se orphan)"
     return
   fi
   echo "→ Portal \"$name\" → $url"
   if [[ -n "$size" ]]; then
-    "$CLI" portal create "$url" "$name" --size "$size"
+    maestri_cli portal create "$url" "$name" --size "$size"
   else
-    "$CLI" portal create "$url" "$name"
+    maestri_cli portal create "$url" "$name"
   fi
 }
 

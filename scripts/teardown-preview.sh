@@ -9,27 +9,25 @@ DROP_SHELLS=0
 [[ "${2:-}" == "--shells" ]] && DROP_SHELLS=1
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CLI="${MAESTRI_CLI:-maestri}"
 PREVIEW="$ROOT/rules/project/preview.md"
 source "$ROOT/scripts/lib/preview-fields.sh"
-
-exists() { "$CLI" list 2>/dev/null | grep -qF "\"$1\""; }
+source "$ROOT/scripts/lib/maestri-exists.sh"
 
 close_portal() {
   local name="$1"
   [[ -n "$name" ]] || return 0
-  if exists "$name"; then
+  if maestri_portal_exists "$name"; then
     echo "→ Fechando portal \"$name\""
-    "$CLI" portal close "$name" 2>/dev/null || echo "  (falhou — feche na UI)"
+    maestri_cli portal close "$name" 2>/dev/null || echo "  (falhou — feche na UI)"
   fi
 }
 
 drop_shell() {
   local name="$1"
   [[ -n "$name" && "$DROP_SHELLS" -eq 1 ]] || return 0
-  if exists "$name"; then
+  if maestri_agent_exists "$name"; then
     echo "→ Dispensando shell \"$name\""
-    "$CLI" dismiss "$name" 2>/dev/null || echo "  (falhou — dismiss na UI)"
+    maestri_cli dismiss "$name" 2>/dev/null || echo "  (falhou — dismiss na UI)"
   fi
 }
 

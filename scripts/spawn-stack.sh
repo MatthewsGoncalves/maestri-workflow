@@ -9,27 +9,19 @@ BRANCH="${3:?Branch (ex: feat/auth)}"
 CODENAME="${4:?Recruit codename (ex: Forja)}"
 PRESET="${5:-}"
 
-CLI="${MAESTRI_CLI:-maestri}"
+source "$(dirname "$0")/lib/maestri-exists.sh"
 
-floor_exists() {
-  "$CLI" floor list 2>/dev/null | grep -qE "^[[:space:]]+${STACK}[[:space:]]"
-}
-
-recruit_exists() {
-  "$CLI" list 2>/dev/null | grep -qE "\"${CODENAME}\""
-}
-
-if floor_exists; then
+if maestri_exists "$STACK" floor; then
   echo "↷ Andar \"$STACK\" já existe — pulando floor create"
 else
   echo "→ Floor: $STACK (branch: $BRANCH)"
-  "$CLI" floor create "$STACK" --branch "$BRANCH" --copy-ground
+  maestri_cli floor create "$STACK" --branch "$BRANCH" --copy-ground
 fi
 
-if recruit_exists; then
+if maestri_exists "$CODENAME" agents; then
   echo "↷ Recruit \"$CODENAME\" já existe — pulando recruit"
 else
-  RECRUIT_CMD=("$CLI" recruit "$CODENAME" --floor "$STACK" --role "$ROLE")
+  RECRUIT_CMD=(maestri_cli recruit "$CODENAME" --floor "$STACK" --role "$ROLE")
   if [[ -n "$PRESET" ]]; then
     RECRUIT_CMD+=(--preset "$PRESET")
   fi
