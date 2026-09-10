@@ -1,0 +1,41 @@
+# Skills externas — fontes da nota "https-github-com-alexgreensh"
+# Instale com: ./scripts/install-skills.sh
+
+sources:
+  engineering:
+    repo: addyosmani/agent-skills
+    ref: main
+    use_for: [orchestrator, reviewer, api-specialist, mobile-dev]
+
+  simplicity:
+    repo: dietrichgebert/ponytail
+    ref: main
+    use_for: [api-specialist, ui-builder, mobile-dev]
+
+  communication:
+    repo: alexgreensh/attention-span
+    ref: main
+    use_for: [orchestrator, reviewer, ui-builder, mobile-dev]
+
+  design-spec:
+    repo: VoltAgent/awesome-design-md
+    ref: main
+    use_for: [orchestrator, ui-builder]
+
+  ui-motion:
+    repo: emilkowalski/skills
+    ref: main
+    use_for: [ui-builder]
+
+  polish:
+    repo: pbakaus/impeccable
+    ref: main
+    use_for: [ui-builder, reviewer]
+
+  diagrams:
+    repo: Graphify-Labs/graphify
+    ref: main
+    use_for: [orchestrator]
+
+# Após install, skills ficam em: skills/vendor/<nome>/
+# Roles referenciam: skills/vendor/<nome>/ (ou SKILL.md dentro)

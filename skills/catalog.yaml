@@ -1,0 +1,206 @@
+# Catálogo de skills — white-label ai-workflow
+# Paths relativos a skills/vendor/. Symlinks em skills/installed/<id>/SKILL.md
+
+version: 1
+
+# Fases do fluxo Orchestrator → stacks
+phases:
+  plan:     "Antes de delegar — spec e breakdown"
+  design:   "Contratos, UI, diagramas"
+  implement: "Durante codificação em stack"
+  review:   "Reviewer ou self-check antes de handoff"
+  debug:    "Blocker / incidente"
+  ship:     "PR, release, land"
+  comm:     "Falar com usuário ou resumir"
+
+skills:
+  # ─── PLAN (Orchestrator) ─────────────────────────────────────────
+  - id: spec-driven-development
+    vendor: engineering/skills/spec-driven-development/SKILL.md
+    phase: plan
+    roles: [orchestrator]
+    when: "Feature nova, spec vaga ou incompleta"
+    orchestrator_says: "Leia skills/installed/spec-driven-development/SKILL.md e preencha a nota spec"
+
+  - id: idea-refine
+    vendor: engineering/skills/idea-refine/SKILL.md
+    phase: plan
+    roles: [orchestrator]
+    when: "Pedido bruto do usuário — precisa clarificar antes de spec"
+    orchestrator_says: "Use idea-refine com o usuário; depois spec-driven-development"
+
+  - id: planning-and-task-breakdown
+    vendor: engineering/skills/planning-and-task-breakdown/SKILL.md
+    phase: plan
+    roles: [orchestrator]
+    when: "Spec pronta — quebrar em tasks antes de spawn stacks"
+    orchestrator_says: "Quebre spec em tasks; anexe lista na nota spec"
+
+  - id: interview-me
+    vendor: engineering/skills/interview-me/SKILL.md
+    phase: plan
+    roles: [orchestrator]
+    when: "Requisitos ambíguos — entrevistar usuário"
+    orchestrator_says: "Rode interview-me antes de escrever spec"
+
+  # ─── DESIGN ──────────────────────────────────────────────────────
+  - id: graphify
+    vendor: diagrams/graphify/skill.md
+    phase: design
+    roles: [orchestrator]
+    when: "Mapear codebase ou fluxo complexo antes de arquitetar"
+    orchestrator_says: "Graphify no path X; resumo na nota spec"
+
+  - id: api-and-interface-design
+    vendor: engineering/skills/api-and-interface-design/SKILL.md
+    phase: design
+    roles: [orchestrator, api-specialist]
+    when: "Definir ou revisar api-contract"
+    orchestrator_says: "Leia api-and-interface-design; atualize nota api-contract"
+
+  - id: design-spec-vercel
+    vendor: design-spec/design-md/vercel/DESIGN.md
+    phase: design
+    type: reference
+    roles: [orchestrator, ui-builder]
+    when: "Referência visual / tokens — escolha brand em design-md/"
+    orchestrator_says: "Use design-md/<brand>/DESIGN.md como referência em design-tokens"
+
+  - id: documentation-and-adrs
+    vendor: engineering/skills/documentation-and-adrs/SKILL.md
+    phase: design
+    roles: [orchestrator]
+    when: "Decisão arquitetural que precisa ADR"
+    orchestrator_says: "ADR curto na nota spec ou docs/adr/"
+
+  # ─── IMPLEMENT ───────────────────────────────────────────────────
+  - id: ponytail
+    vendor: simplicity/skills/ponytail/SKILL.md
+    phase: implement
+    roles: [api-specialist, ui-builder, mobile-dev]
+    when: "Sempre em implementação — default lazy senior"
+    orchestrator_says: "Modo ponytail full durante implementação"
+
+  - id: incremental-implementation
+    vendor: engineering/skills/incremental-implementation/SKILL.md
+    phase: implement
+    roles: [api-specialist, ui-builder, mobile-dev]
+    when: "Feature grande — entregar em fatias verificáveis"
+    orchestrator_says: "Implemente fatia 1 de N conforme tasks na spec"
+
+  - id: test-driven-development
+    vendor: engineering/skills/test-driven-development/SKILL.md
+    phase: implement
+    roles: [api-specialist, mobile-dev]
+    when: "Lógica crítica / regressão — backend e mobile"
+    orchestrator_says: "TDD no escopo desta task"
+
+  - id: frontend-ui-engineering
+    vendor: engineering/skills/frontend-ui-engineering/SKILL.md
+    phase: implement
+    roles: [ui-builder]
+    when: "UI web — componentes, estado, a11y"
+    orchestrator_says: "Siga frontend-ui-engineering + design-tokens"
+
+  - id: animate
+    vendor: ui-motion/skills/animate/SKILL.md
+    phase: implement
+    roles: [ui-builder]
+    when: "Animações web"
+    orchestrator_says: "Use skill animate para motion"
+
+  - id: animate-expo
+    vendor: ui-motion/skills/animate-expo/SKILL.md
+    phase: implement
+    roles: [ui-builder, mobile-dev]
+    when: "Animações React Native / Expo"
+    orchestrator_says: "Use animate-expo"
+
+  - id: impeccable
+    vendor: polish/.cursor/skills/impeccable/SKILL.md
+    phase: implement
+    roles: [ui-builder]
+    when: "UI nova ou redesign — polish de produto"
+    orchestrator_says: "impeccable no surface X — depois commit"
+
+  - id: security-and-hardening
+    vendor: engineering/skills/security-and-hardening/SKILL.md
+    phase: implement
+    roles: [api-specialist]
+    when: "Auth, dados sensíveis, endpoints públicos"
+    orchestrator_says: "Aplique security-and-hardening nesta task"
+
+  # ─── REVIEW ──────────────────────────────────────────────────────
+  - id: code-review-and-quality
+    vendor: engineering/skills/code-review-and-quality/SKILL.md
+    phase: review
+    roles: [reviewer]
+    when: "Todo review de stack"
+    orchestrator_says: "Review branch X — skill code-review-and-quality"
+
+  - id: ponytail-review
+    vendor: simplicity/skills/ponytail-review/SKILL.md
+    phase: review
+    roles: [reviewer]
+    when: "Checar over-engineering no diff"
+    orchestrator_says: "Camada ponytail-review após review principal"
+
+  - id: review-animations
+    vendor: ui-motion/skills/review-animations/SKILL.md
+    phase: review
+    roles: [reviewer]
+    when: "Diff touchou motion / CSS animation"
+    orchestrator_says: "review-animations nos arquivos Y"
+
+  # ─── DEBUG ───────────────────────────────────────────────────────
+  - id: debugging-and-error-recovery
+    vendor: engineering/skills/debugging-and-error-recovery/SKILL.md
+    phase: debug
+    roles: [api-specialist, ui-builder, mobile-dev]
+    when: "Stack bloqueada em bug"
+    orchestrator_says: "Debug com skill debugging-and-error-recovery; reporte root cause"
+
+  # ─── SHIP ────────────────────────────────────────────────────────
+  - id: git-workflow-and-versioning
+    vendor: engineering/skills/git-workflow-and-versioning/SKILL.md
+    phase: ship
+    roles: [orchestrator]
+    when: "Antes de land / PR — alinhar com rules/project/git.md"
+    orchestrator_says: "Land segue project git.md + git-workflow skill"
+
+  - id: shipping-and-launch
+    vendor: engineering/skills/shipping-and-launch/SKILL.md
+    phase: ship
+    roles: [orchestrator]
+    when: "Release / go-live checklist"
+    orchestrator_says: "Checklist shipping-and-launch + integration-checklist"
+
+  # ─── COMM (Orchestrator ↔ user) ──────────────────────────────────
+  - id: tldr
+    vendor: communication/skills/tldr/SKILL.md
+    phase: comm
+    roles: [orchestrator, reviewer]
+    when: "Resumir doc/issue longa pro usuário"
+    orchestrator_says: "Resposta ao user em formato tldr"
+
+  - id: spartan
+    vendor: communication/skills/spartan/SKILL.md
+    phase: comm
+    roles: [orchestrator]
+    when: "Update curto de status pro usuário"
+    orchestrator_says: "Status spartan — 3 linhas max"
+
+  - id: rundown
+    vendor: communication/skills/rundown/SKILL.md
+    phase: comm
+    roles: [orchestrator]
+    when: "Handoff de fim de feature — o que foi feito"
+    orchestrator_says: "Rundown final pro usuário"
+
+  - id: attention-kind
+    vendor: communication/skills/attention-kind/SKILL.md
+    phase: comm
+    always_on: [orchestrator]
+    roles: [orchestrator, reviewer, api-specialist, ui-builder, mobile-dev]
+    when: "Orchestrator: TODA resposta ao usuário (default fixo). Outros: tom empático quando citado"
+    orchestrator_says: "(sempre ativo — não precisa citar) Leia uma vez por sessão: skills/installed/attention-kind/SKILL.md"

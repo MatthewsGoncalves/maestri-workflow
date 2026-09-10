@@ -1,0 +1,5 @@
+skills/vendor/
+skills/installed/
+
+# OS
+.DS_Store

@@ -1,0 +1,11 @@
+---
+description: Regras do template Maestri ai-workflow — processo multi-agente agent-agnostic
+globs:
+alwaysApply: true
+---
+
+Leia `AGENTS.md` e `rules/README.md`. Siga `rules/universal/` e a role Maestri assignada.
+
+- Subagentes internos proibidos — delegue via `maestri ask`
+- `maestri list` antes de acionar outro terminal
+- Economia de token: ver `rules/universal/token-economy.md`
