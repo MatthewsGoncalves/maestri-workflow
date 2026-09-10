@@ -8,9 +8,9 @@ Clone isolado `Backend`. Branch própria. Não toque outras stacks.
 
 ### Ao concluir
 
-```
-maestri ask "Orquestrator" "Status: needs-review | Stack: Backend | Branch: ... | Paths: ..."
-```
+1. `maestri ask "Orquestrator" "Status: needs-review | ..."`
+2. **`/clear`** (obrigatório)
+3. Aguarde Orchestrator **`maestri dismiss`** — não fique ocioso no canvas
 
 ### Skills
 

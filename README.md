@@ -47,7 +47,7 @@ Andares = stacks (sob demanda, dismiss quando acabar)
   Mobile   → Mobile Dev
 ```
 
-**Agentes 24/7 gastam tokens** — só Orchestrator fica persistente; stacks e reviewer entram por feature.
+**Agentes 24/7 gastam tokens** — só Orchestrator persistente; workers: chamado → age → `/clear` → dismiss.
 
 ## Documentação
 

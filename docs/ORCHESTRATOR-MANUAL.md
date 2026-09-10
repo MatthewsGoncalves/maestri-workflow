@@ -88,21 +88,36 @@ maestri floor land "Mobile" --into main
 
 Consulte `rules/project/git.md` do projeto antes de merge.
 
-### 6. Encerrar
+### 6. Encerrar (chamado → age → limpa)
+
+Por **cada** worker (stack ou reviewer):
+
+```bash
+# Worker reporta done → roda /clear → você dismiss:
+maestri dismiss "Forja"
+maestri dismiss "Vitrine"
+maestri dismiss "Crivo"
+```
 
 - Marque `integration-checklist`
-- `maestri dismiss` nos recruits ociosos
-- Peça `/clear` aos workers (você permanece)
+- `maestri list` — confirme **zero** recruits ociosos
 - Status final ao user: `rundown` (+ attention-kind)
+
+Próxima feature = **novo recruit**, não reutilizar terminal parado.
 
 ## Economia de token (obrigatório)
 
-1. **Não** mantenha stacks 24/7 — dismiss após a feature
-2. **Não** reenvie mensagem parada em outro terminal sem confirmar
-3. **Não** polling de MR/review via agente — use `gh`/`git` ou espere o usuário
-4. **Agrupe** instruções num único `ask`
-5. **Reviewer único** — sequencial, não um por stack
-6. **Subagentes internos proibidos** — só `maestri ask`
+**Workers não ficam 24/7.** Ciclo: **chamado → age → reporta → `/clear` → dismiss.**
+
+1. **Recruit** só quando for delegar (`spawn-stack.sh` / `spawn-reviewer.sh`)
+2. **Dismiss** assim que a stack/reviewer terminou a parte dela (ou após land)
+3. **`maestri list`** no fim da feature — zero recruits ociosos
+4. **Não** polling de MR/review via agente — use `gh`/`git` ou espere o usuário
+5. **Não** reenvie mensagem parada em outro terminal sem confirmar
+
+Detalhe: `rules/universal/agent-lifecycle.md`
+
+Só **você** (Orchestrator) permanece entre features.
 
 ## Comunicação com o usuário
 

@@ -8,7 +8,7 @@ Clone isolado `Frontend`.
 
 ### Ao concluir
 
-Reporte Orchestrator com `Status: needs-review`.
+Reporte Orchestrator → **`/clear`** → aguarde dismiss.
 
 ### Skills
 

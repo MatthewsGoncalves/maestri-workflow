@@ -11,9 +11,10 @@ North star de todo o workflow. Toda decisão deve passar por aqui.
 
 ## Otimizado
 
-- Só Orchestrator persistente; stacks e reviewer entram por feature
+- **Chamado → age → limpa → dismiss** — ver `agent-lifecycle.md`
+- Só Orchestrator persistente; stacks e reviewer existem só durante a feature
 - Skills **citadas**, nunca vendor inteiro
-- `/clear` quando a etapa fechou
+- `/clear` **obrigatório** antes de dismiss
 - Reviewer único, sequencial — não duplicar papéis
 - attention-kind com o usuário — respeito ao limite de atenção = menos retrabalho
 
